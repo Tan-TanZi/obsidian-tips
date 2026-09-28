@@ -3,7 +3,7 @@
 	"name": "Tips",
 	"version": "2.0.0",
 	"minAppVersion": "1.0.0",
-	"description": "让代码块更顺手：悬浮即可选语言，双栏面板汇总内置语言、Mermaid 与已安装插件注册的代码块名称。",
+	"description": "Pick code block languages from a floating two-column panel, with built-in languages, Mermaid, plugin-registered names, and reusable content templates.",
 	"author": "Tan-TanZi",
 	"authorUrl": "https://github.com/Tan-TanZi",
 	"isDesktopOnly": false
