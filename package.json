@@ -1,0 +1,29 @@
+{
+	"name": "obsidian-tips",
+	"version": "2.0.0",
+	"description": "Smarter code blocks for Obsidian: pick a language from a floating two-column panel, with built-in languages, Mermaid and code block names registered by installed plugins.",
+	"main": "main.js",
+	"type": "module",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"version": "node version-bump.mjs"
+	},
+	"keywords": [
+		"obsidian",
+		"obsidian-plugin",
+		"codeblock",
+		"language",
+		"mermaid"
+	],
+	"author": "Tan-TanZi (https://github.com/Tan-TanZi)",
+	"license": "MIT",
+	"devDependencies": {
+		"@codemirror/state": "6.5.0",
+		"@codemirror/view": "6.38.6",
+		"@types/node": "^18.19.0",
+		"esbuild": "0.25.5",
+		"obsidian": "1.13.1",
+		"typescript": "^5.5.0"
+	}
+}

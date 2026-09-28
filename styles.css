@@ -1,0 +1,386 @@
+/* ==========================================================================
+   Tips —— 代码块语言提示插件
+   所有颜色均取自 Obsidian 的主题变量，自动适配明暗主题。
+   ========================================================================== */
+
+/* ---------- 悬浮按钮 ---------- */
+
+/* 按钮挂在代码块最后一行，需要这一行作为绝对定位的参照 */
+.cm-line.tips-cb-lastline {
+	position: relative;
+}
+
+.tips-cb-btn {
+	position: absolute;
+	right: 6px;
+	bottom: 2px;
+	z-index: 5;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 1px 6px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	background-color: var(--background-secondary);
+	color: var(--text-faint);
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-smaller);
+	line-height: 1.5;
+	white-space: nowrap;
+	cursor: pointer;
+	user-select: none;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.tips-cb-btn.is-visible {
+	opacity: 0.85;
+	pointer-events: auto;
+}
+
+.tips-cb-btn:hover {
+	opacity: 1;
+	color: var(--text-normal);
+	border-color: var(--interactive-accent);
+}
+
+.tips-cb-btn-icon {
+	display: inline-flex;
+	align-items: center;
+}
+
+.tips-cb-btn-icon svg {
+	width: 12px;
+	height: 12px;
+}
+
+.tips-cb-btn-label {
+	max-width: 14em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* ---------- 双栏候选面板 ---------- */
+
+.tips-picker {
+	position: fixed;
+	z-index: var(--layer-menu, 1000);
+	display: flex;
+	flex-direction: column;
+	/* 宽度由设置项通过内联 CSS 变量下发，也可用 CSS 片段覆盖此变量 */
+	width: var(--tips-picker-width, 380px);
+	max-width: calc(100vw - 16px);
+	max-height: 340px;
+	overflow: hidden;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	background-color: var(--background-secondary);
+	box-shadow: var(--shadow-s);
+	font-size: var(--font-ui-small);
+}
+
+.tips-picker-columns {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.tips-picker-col {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.tips-picker-col + .tips-picker-col {
+	border-left: 1px solid var(--background-modifier-border);
+}
+
+.tips-picker-title {
+	flex: 0 0 auto;
+	padding: 6px 10px;
+	border-bottom: 1px solid var(--background-modifier-border);
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+	font-weight: var(--font-medium);
+}
+
+.tips-picker-list {
+	flex: 1 1 auto;
+	min-height: 0;
+	padding: 4px;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.tips-picker-item {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 3px 8px;
+	border-radius: var(--radius-s);
+	color: var(--text-normal);
+	cursor: pointer;
+}
+
+.tips-picker-item.is-active {
+	background-color: var(--background-modifier-hover);
+	color: var(--text-accent);
+}
+
+.tips-picker-item.is-disabled .tips-picker-value {
+	color: var(--text-faint);
+}
+
+.tips-picker-value {
+	flex: 0 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	font-family: var(--font-monospace);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.tips-picker-note {
+	flex: 0 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	color: var(--text-faint);
+	/* 比标识符再小一号，让主次关系更清楚 */
+	font-size: var(--font-smallest, 11px);
+	text-align: right;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.tips-picker-empty {
+	padding: 8px 10px;
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+}
+
+.tips-picker-hint {
+	flex: 0 0 auto;
+	padding: 5px 10px;
+	border-top: 1px solid var(--background-modifier-border);
+	background-color: var(--background-primary);
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+}
+
+/* ---------- 设置页：自定义条目 ---------- */
+
+.tips-custom-list {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin-bottom: 12px;
+}
+
+.tips-custom-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto;
+	gap: 6px;
+	align-items: center;
+}
+
+.tips-custom-input {
+	width: 100%;
+}
+
+.tips-custom-empty {
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+}
+
+/* ==========================================================================
+   内容模板
+   ========================================================================== */
+
+/* ---------- 模板面板：左名字 / 右预览 ---------- */
+
+.tips-snippet-picker {
+	width: var(--tips-picker-width, 520px);
+}
+
+.tips-snippet-body {
+	display: grid;
+	grid-template-columns: 3fr 7fr;
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.tips-snippet-col {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.tips-snippet-col + .tips-snippet-col {
+	border-left: 1px solid var(--background-modifier-border);
+}
+
+.tips-snippet-list {
+	flex: 1 1 auto;
+	min-height: 0;
+	padding: 4px;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.tips-snippet-item {
+	padding: 3px 8px;
+	border-radius: var(--radius-s);
+	color: var(--text-normal);
+	cursor: pointer;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.tips-snippet-item.is-active {
+	background-color: var(--background-modifier-hover);
+	color: var(--text-accent);
+}
+
+.tips-snippet-preview {
+	flex: 1 1 auto;
+	min-height: 0;
+	margin: 0;
+	padding: 8px 10px;
+	overflow: auto;
+	background-color: var(--background-primary);
+	color: var(--text-normal);
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-smaller);
+	line-height: 1.5;
+	tab-size: 4;
+	white-space: pre;
+}
+
+/* ---------- 设置页：分组标题 ---------- */
+
+/* 用 .tips-settings 提高优先级，确保能压过 Obsidian 默认的 h3 留白 */
+.tips-settings .tips-settings-heading {
+	margin-block-start: 18px;
+	margin-block-end: 6px;
+	margin-inline: 0;
+	padding: 0;
+}
+
+/* ---------- 设置页：被 .setting-item 包住的整块内容 ---------- */
+
+.tips-section .setting-item {
+	/* 外层已经提供分隔线，里面的条目不再重复画一条 */
+	border-top: none;
+}
+
+.tips-section .tips-custom-list,
+.tips-section .tips-snippet-group {
+	margin-top: 10px;
+}
+
+/* 提示条 */
+.tips-warning {
+	margin: 10px 0 0;
+	padding: 8px 10px;
+	border-left: 3px solid var(--text-warning);
+	border-radius: var(--radius-s);
+	background-color: var(--background-secondary);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	line-height: 1.5;
+}
+
+/* 描述里的按键强调 */
+.tips-key {
+	color: var(--text-accent);
+	font-weight: var(--font-bold);
+}
+
+/* ---------- 设置页：按钮铺满 ---------- */
+
+.tips-custom-add {
+	display: block;
+	width: 90%;
+	margin: 10px auto 0;
+}
+
+.tips-transfer-row {
+	display: flex;
+	justify-content: center;
+	margin: 12px 0 4px;
+}
+
+.tips-transfer-button {
+	justify-content: center;
+	width: 90%;
+}
+
+.tips-transfer-count {
+	margin-bottom: 14px;
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+	text-align: center;
+}
+
+/* ---------- 设置页：内容模板分组 ---------- */
+
+.tips-snippet-group {
+	margin-bottom: 8px;
+	padding: 4px 8px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+}
+
+.tips-snippet-group > summary {
+	padding: 2px 0;
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	cursor: pointer;
+}
+
+/* 条目列表相对标识符那一行缩进一档，形成层级感 */
+.tips-snippet-entries {
+	margin-left: 16px;
+	padding-left: 4px;
+	border-left: 2px solid var(--background-modifier-border);
+}
+
+/* ---------- 弹窗 ---------- */
+
+.tips-modal-buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+.tips-transfer-textarea {
+	width: 100%;
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-smaller);
+	resize: vertical;
+}
+
+.tips-snippet-modal .setting-item-name {
+	margin-top: 12px;
+}
+/* 隐藏的文件选择框，由按钮代为触发 */
+.tips-file-input {
+	display: none;
+}
+/* 当前已不可用的分组：整体弱化，避免和正常分组抢注意力 */
+.tips-snippet-group.is-muted {
+	opacity: 0.55;
+}
+
+.tips-snippet-group.is-muted > summary {
+	color: var(--text-faint);
+}
