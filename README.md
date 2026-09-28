@@ -1,79 +1,71 @@
 # Tips
 
-**简体中文** · [English](README_EN.md)
+**English** · [简体中文](README_ZH.md)
 
-> 让 Obsidian 的代码块像 Typora 一样顺手：**代码块鼠标悬浮即可选编程语言**。
+> Code blocks in Obsidian, as handy as they are in Typora: **hover a code block and pick the language**.
 
-Tips 是一个 Obsidian 插件。它解决两件事：
+Tips is an Obsidian plugin that solves two things:
 
-1. Obsidian 原生没有代码块上没有语言选择器，只能手写 ` ```java ` 这种 info string，容易写错、也不方便。
-2. 很多插件（如 sketch-mechanisms、word-cloud）是通过代码块触发的，但时间一长就忘了激活名（`mechanism`、`wordcloud`……）。
+1. Obsidian has no language picker on code blocks — you have to type the info string by hand (` ```java `), which is easy to get wrong and tedious to type.
+2. Many plugins (such as sketch-mechanisms and word-cloud) are triggered through code blocks, but over time you forget the activation name (`mechanism`, `wordcloud`, …).
 
-Tips 会把  **内置语言 + Obsidian 内置处理器（mermaid / math / query） + 已安装插件注册的代码块名 + 你自定义的条目**  全部汇总起来，用一个双栏面板直观呈现。
+Tips gathers **built-in languages + Obsidian's own processors (mermaid / math / query) + code block names registered by your installed plugins + your own custom entries** into a single two-column panel.
 
 <img src="img/1.jpg" alt="1" style="zoom:80%;" />
 
-同时还可以添加自定义模板，输入`?`即可展现，方便你随时调用
+It also lets you store reusable templates — type `?` to bring them up whenever you need them.
 
 <img src="img/2.jpg" alt="2" />
 
+## Features
 
+### 1. Floating button on code blocks
 
-## 具体功能
+Hover any code block and a button appears in the bottom-right corner showing that block's current language — **an instant answer to "what am I supposed to write here?"**. Click it to open the picker and switch languages.
 
-### 1. 代码块悬浮按钮
+Clicking the button **does not move your cursor**; picking a language only rewrites the language identifier, so your editing position is never disturbed.
 
-鼠标移入任意代码块，右下角浮现一个按钮，上面显示该代码块当前的语言名——**这就是"我该写什么"的即时答案**。点击按钮即可打开候选面板并切换语言。
+### 2. Typing ``` opens the two-column picker
 
-点击按钮**不会移动你的光标**；选中之后也只改写语言标识，不会打扰你正在编辑的位置。
+Type three backticks on an empty line and the picker appears immediately:
 
-
-
-### 2. 输入 ``` 自动弹出双栏候选
-
-在空行敲下三个反引号，候选面板立刻弹出：
-
-| 左栏：编程语言 / 内置处理器 | 右栏：插件 / 自定义 |
+| Left column: languages / built-in | Right column: plugins / custom |
 | --- | --- |
-| `mermaid`、`python`、`java`、`bash`…… | 插件注册的代码块名（如 `mechanism`、`wordcloud`...）以及你自己补充的条目 |
+| `mermaid`, `python`, `java`, `bash`, … | Code block names registered by plugins (such as `mechanism`, `wordcloud`, …) plus your own entries |
 
-候选项可以省略号截断，鼠标悬浮会显示完整的「条目 — 备注」提示。
+Long entries are truncated with an ellipsis; hovering shows the full "entry — note" tooltip.
 
-**继续输入会自动过滤**：敲了 `j` 之后，两栏同时收窄到匹配项。过滤支持前缀优先与模糊匹配，所以 `wc` 也能找到 `wordcloud`。
+**Keep typing to filter**: after `j`, both columns narrow to matching entries. Filtering prefers prefix matches and also supports fuzzy matching, so `wc` still finds `wordcloud`.
 
-键盘操作：
+Keyboard:
 
-| 按键 | 作用 |
+| Key | Action |
 | --- | --- |
-| `↑` / `↓` | 在当前栏内上下移动，走到尽头会跳到另一栏 |
-| `←` / `→` | 切换左右栏 |
-| `Enter` / `Tab` | 确认选中 |
-| `Esc` | 关闭面板 |
+| `↑` / `↓` | Move within the current column; at the end it jumps to the other column |
+| `←` / `→` | Switch columns |
+| `Enter` / `Tab` | Confirm the selection |
+| `Esc` | Close the panel |
 
-也可以用鼠标直接点击候选项。
+You can also click an entry with the mouse.
 
-把光标放到已有的语言行上（例如 ```` ```java ````），面板会弹出，并用该行的内容作为过滤词；继续增删字符会实时更新结果。
+Put the cursor on an existing info line (for example ```` ```java ````) and the panel opens with that line's content as the filter; editing the line updates results live.
 
-面板**始终跟随光标**。即使是从右下角按钮打开的面板，一旦你回到语言行编辑，它也会从按钮位置移到你正在编辑的那一行——不会赖在原地。
+The panel **always follows the cursor**. Even when it was opened from the corner button, as soon as you go back to editing the info line it moves from the button to the line you're editing — it never stays behind.
 
-候选项按**字母顺序**排列，方便按名字查找（可在设置中改回按常用度排序）。
+Entries are sorted **alphabetically** so you can find them by name (this can be switched back to the built-in frequency order in settings).
 
-面板的位置始终锚定在**光标**或**按钮**的正下方（下方空间不足时自动翻到正上方），不会左右偏移；面板紧贴锚点，内容变少时不会与光标拉开空隙；滚动笔记时面板会自动收起；光标离开语言行去别处编辑时也会收起。
+The panel is always anchored directly **below the cursor or the button** (flipping above when there isn't room below) and never shifts sideways. It stays flush against its anchor, so shrinking the content won't leave a gap; it closes automatically when you scroll the note or move away from the info line.
 
+### 3. Where candidates come from
 
+- **Built-in languages**: around 100 common language identifiers, with the full language name as the note.
+- **Obsidian processors**: `mermaid`, `math`, `query`.
+- **Plugin scan**: reads each plugin's `main.js` under the plugins folder, extracts names from `registerMarkdownCodeBlockProcessor("xxx", …)` and shows which plugin they belong to (disabled plugins are labelled).
+- **Custom entries**: add or remove them in settings at any time (entry + note).
 
-### 3. 候选来源
+### 4. Content templates (no more memorising syntax)
 
-- **内置语言**：约 100 个常见语言标识，按常用度排序，备注为语言全称。
-- **Obsidian 内置处理器**：`mermaid`、`math`、`query`。
-- **插件扫描**：读取插件目录下每个插件的 `main.js`，提取 `registerMarkdownCodeBlockProcessor("xxx", …)` 里的名字，并显示它来自哪个插件（插件未启用时会标注）。
-- **自定义条目**：设置页可以随时增删（条目 + 备注）。
-
-
-
-### 4. 内容模板（再也不用记具体语法了）
-
-选对类别只是第一步。mermaid 有十几种图、其他插件也会有，每种写法都不一样——把这些常用写法自行存成「内容模板」，在代码块内容的第一行输入 `?` 就能调出来：
+Picking the right category is only the first step. Mermaid alone has a dozen diagram types, and other plugins come with their own variants — each with different syntax. Store the ones you use as **content templates**, then type `?` as the first character inside a code block to bring them up:
 
 ````markdown
 ```mermaid
@@ -81,43 +73,41 @@ Tips 会把  **内置语言 + Obsidian 内置处理器（mermaid / math / query�
 ```
 ````
 
-面板弹出（左列名称、右列完整内容预览），`↑↓` 选择、`Enter` 插入，**整个代码块内容会被替换**，光标落在新内容末尾。
+A panel appears (names on the left, a full preview on the right). Pick with `↑↓` and insert with `Enter` — **the whole code block body is replaced** and the cursor lands at the end of the new content.
 
-- `?` 必须是内容区的**第一个字符**，前面不能有空格，所以 `a ? b : c` 这类写法不会误触
-- `?` 之后继续输入会按**名称**过滤（不搜正文），例如 `?实体关系图`
-- 条目在「设置 → Tips → 内容模板」里按条目维护；粘贴内容时可以带整段代码块，外层的 ```` ``` ```` 会被自动去掉
-- 导出会按 **插件 / 内置 / 自定义** 分成三组：
+- `?` must be the **first character** of the body, with no leading space, so `a ? b : c` never triggers it by accident
+- Typing after `?` filters by **name** (the body is not searched), e.g. `?实体关系图`
+- Templates are managed per entry under Settings → Tips → Content templates; paste a whole code block and the surrounding ```` ``` ```` is stripped for you
+- Exports are split into three groups — **plugins / builtin / custom**:
 
 ```json
 {
-	"plugins": { "mechanism": [{ "name": "四连杆机构", "body": "type: fourbar" }] },
-	"builtin": { "mermaid": [{ "name": "饼图", "body": "pie title X" }] },
-	"custom": { "myblock": [{ "name": "私有模板", "body": "..." }] }
+	"plugins": { "mechanism": [{ "name": "Four-bar linkage", "body": "type: fourbar" }] },
+	"builtin": { "mermaid": [{ "name": "Pie chart", "body": "pie title X" }] },
+	"custom": { "myblock": [{ "name": "Private template", "body": "..." }] }
 }
 ```
 
-导入时三组区别对待：
+The three groups are treated differently on import:
 
-| 分组 | 行为 |
+| Group | Behaviour |
 | --- | --- |
-| `plugins` | 有对应插件就导入，没有就整段跳过并提示 |
-| `builtin` | 有对应内置处理器就导入，没有就整段跳过并提示 |
-| `custom` | 由「可导入非插件条目的模板」开关决定；条目不存在时会自动补建（备注留空） |
+| `plugins` | Imported when the plugin is installed, otherwise skipped entirely with a notice |
+| `builtin` | Imported when the processor exists, otherwise skipped entirely with a notice |
+| `custom` | Controlled by the "import non-plugin templates" switch; missing entries are created automatically with a blank note |
 
-- 可以复制到剪贴板，也可以直接导出 `tips.json` 文件；导入支持粘贴文本或选择文件
-- 导入是**追加**：同名同内容跳过，当前没有的条目整段跳过并提示
+- You can copy to the clipboard or export a `tips.json` file; importing accepts pasted text or a chosen file
+- Import is **additive**: identical entries are skipped, and entries you don't currently have are skipped with a notice
 
+#### For plugin authors: ship templates with your plugin
 
-
-#### 写给插件作者：随包附带模板
-
-如果你的插件也是靠代码块工作的，你可以把参考模板写进插件目录下的 `tips.json`，用户装上插件就自动拥有这些模板，无需手动导入：
+If your plugin also works through code blocks, you can put reference templates in a `tips.json` inside your plugin folder — users get them automatically after installing, with no manual import:
 
 <img src="img/3.jpg" alt="3" />
 
 <img src="img/4.jpg" alt="4" style="zoom: 50%;" />
 
-tips.json结构，如下
+The structure of `tips.json`:
 
 ```json
 {
@@ -129,155 +119,139 @@ tips.json结构，如下
 }
 ```
 
-几点约定：
+A few conventions:
 
-- 键是**代码块标识符**，值是模板数组（每条含 `name` 与 `body`）
-- `body` 里不要写外层围栏
-- 这是**只读**的：不会写进用户的模板列表，插件卸载后自动消失
-- 用户可以在设置里关掉「自动读取插件附带的模板」
+- Keys are **code block identifiers**, values are arrays of templates (each with `name` and `body`)
+- Do not include the surrounding fence in `body`
+- This is **read-only**: nothing is written into the user's template list, and it disappears when your plugin is uninstalled
+- Users can turn off "read templates bundled with plugins" in settings
 
+## Installation
 
+### Manual installation
 
-## 安装
+1. Download or build `main.js`, `manifest.json` and `styles.css`.
+2. Create `<vault>/.obsidian/plugins/tips/` inside your vault.
+3. Put the three files in there.
+4. Open Obsidian → Settings → Community plugins → turn off Restricted mode → enable **Tips**.
 
-### 手动安装
-
-1. 下载或自行构建出 `main.js`、`manifest.json`、`styles.css`。
-2. 在你的仓库目录下新建 `<仓库>/.obsidian/plugins/tips/`。
-3. 把上面三个文件放进去。
-4. 打开 Obsidian →「设置」→「第三方插件」→ 关闭安全模式 → 启用 **Tips**。
-
-### 从源码构建
+### Building from source
 
 ```bash
 npm install
-npm run dev     # 监听模式，改动即编译
-npm run build   # 类型检查 + 生产构建
+npm run dev     # watch mode, rebuilds on change
+npm run build   # type check + production build
 ```
 
-把生成的 `main.js` 连同 `manifest.json`、`styles.css` 拷进插件的 `tips` 文件夹即可。
+Copy the generated `main.js` along with `manifest.json` and `styles.css` into the plugin's `tips` folder.
 
-开发时也可以直接把本仓库放到 `<仓库>/.obsidian/plugins/tips/` 下，`npm run dev` 后 Obsidian 里重新加载插件。
+During development you can also clone this repository straight into `<vault>/.obsidian/plugins/tips/` and reload the plugin in Obsidian after `npm run dev`.
 
+## Settings
 
-
-## 设置
-
-| 设置项 | 默认值 | 说明 |
+| Setting | Default | Description |
 | --- | --- | --- |
-| 界面语言🌏️ | 跟随 Obsidian | 可选「跟随 Obsidian」或 简体中文 / English / Русский / Français / Español / العربية |
-| 代码块悬浮按钮 | 开 | 关闭后不再显示右下角按钮 |
-| 输入 ``` 后自动打开候选 | 开 | 关闭后只能用按钮或命令打开 |
-| 在语言行编辑时打开候选 | 开 | 光标落到语言行、或在该行增删字符时弹出 |
-| 候选按字母排序 | 开 | 关闭后语言一栏按内置的常用度顺序排列 |
-| 候选面板宽度 | 580 px | 可调范围 280–920 px，语言面板与模板面板共用 |
-| 包含内置语言列表 | 开 | 关闭后左栏只保留你自己需要的部分 |
-| 扫描已安装插件的代码块名称 | 开 | 关闭后不读取任何插件文件 |
-| 自动读取插件附带的模板 | 开 | 扫描插件目录下的 `tips.json`，只读，不写入你的模板列表 |
-| 重新扫描 | —— | 手动触发一次扫描，并显示统计结果 |
-| 自定义代码块条目 | 空 | 条目 + 备注，随时增删 |
-| 内容模板 | 空 | 按条目维护可复用的代码块内容，首行输入 `?` 调用；支持导入导出 |
+| Interface language 🌏️ | Follow Obsidian | Choose "Follow Obsidian" or 简体中文 / English / Русский / Français / Español / العربية |
+| Floating code block button | On | When off, the corner button is no longer shown |
+| Auto-open after typing ``` | On | When off, the panel can only be opened from the button or the command |
+| Open while editing the info line | On | Opens when the cursor lands on the info line or while you edit it |
+| Sort candidates alphabetically | On | When off, the language column keeps the built-in frequency order |
+| Candidate panel width | 580 px | Range 280–920 px, shared by the language and template panels |
+| Include the built-in language list | On | When off, only the entries you need remain in the left column |
+| Scan installed plugins for code block names | On | When off, no plugin files are read |
+| Read templates bundled with plugins | On | Scans plugin folders for `tips.json`; read-only, never written into your template list |
+| Rescan now | —— | Triggers a scan manually and reports the result |
+| Custom code block entries | Empty | Entry + note, add or remove at any time |
+| Content templates | Empty | Reusable code block bodies per entry, invoked with `?` on the first line; supports import / export |
 
-插件还注册了两个命令（命令面板中搜索 “Tips”）：
+The plugin also registers two commands (search for "Tips" in the command palette):
 
-- **打开代码块语言选择器**
-- **重新扫描插件代码块名称**
+- **Open code block language picker**
+- **Rescan plugin code block names**
 
+## How it works
 
+- The editor UI is built on CodeMirror 6's public extension points: a `ViewPlugin` registered through `registerEditorExtension` adds a line decoration to the last line of every fenced code block and places a `WidgetType` button at the end of that line; the picker is a fixed-position layer attached to `document.body`.
+- Code blocks are detected with line-level regex on fences (both ```` ``` ```` and `~~~` are supported), and unclosed fences are handled correctly, so the panel reacts the moment the third backtick is typed.
+- The plugin scan **does not rely on any internal API**: `Vault.configDir` and `Vault.adapter` are both public, so it works on desktop and mobile alike. The enabled-plugin list comes from the vault config file `community-plugins.json`.
+- UI strings ship in six languages (Chinese, English, Russian, French, Spanish and Arabic — each language name always written in its own script), with no third-party i18n library.
 
-## 工作原理
+## Known limitations
 
-- 编辑器 UI 基于 CodeMirror 6 的公开扩展点实现：用 `registerEditorExtension` 注册一个 `ViewPlugin`，给每个围栏代码块的最后一行加行装饰，并在行尾放一个 `WidgetType` 按钮；候选面板是一个挂在 `document.body` 上的固定定位浮层。
-- 代码块识别使用行级正则解析围栏（```` ``` ```` 与 `~~~` 均支持），并正确处理未闭合的围栏，所以刚敲下三个反引号时就能立即响应。
-- 插件扫描**不依赖任何内部 API**：`Vault.configDir` 与 `Vault.adapter` 都是公开接口，因此桌面端和移动端都能工作。已启用插件列表来自仓库配置文件 `community-plugins.json`。
-- 界面文案内置中、英、俄、法、西、阿六种语言（语言名一律用它自己的写法），不引入 i18n 第三方库。
+- The plugin scan relies on **literal** calls in `main.js`. The rare plugin that builds its registration name from variables will be missed — add it as a custom entry instead.
+- The floating button and the pickers work in **edit mode**; reading mode uses a separate rendering pipeline and is not supported yet.
+- Scanning reads every plugin's `main.js` (usually tens of KB to a few MB). It runs asynchronously in the background on first load and can be a little slow on mobile with large vaults; it can be turned off in settings.
+- Code blocks are detected with line-level regex rather than a syntax tree, so extreme nesting (a fence at the start of a line inside a code block) may be misread.
+- To keep typing responsive, documents longer than 3000 lines are only scanned around the cursor (aligned back to the nearest fence line). Code blocks spanning thousands of lines may not be detected — open the picker from the command palette, or write the language by hand.
 
-
-
-## 已知限制
-
-- 插件扫描依赖 `main.js` 中的**字面量**调用。极少数用变量拼接注册名的插件会被漏掉——用「自定义条目」补上即可。
-- 悬浮按钮与候选面板作用于**编辑模式**；阅读模式是独立渲染流程，暂不支持。
-- 扫描会读取每个插件的 `main.js`（通常是几十 KB 到几 MB），首次加载在后台异步进行，大仓库的移动端可能略慢，可在设置中关闭。
-- 代码块识别基于行级正则而非语法树，极端的嵌套写法（如代码块内容里出现行首围栏）可能被误判。
-- 为保证输入流畅，超过 3000 行的文档只扫描光标附近的一段（并向前对齐到最近的围栏行）。跨越数千行的超长代码块可能识别不到，此时可直接用命令面板打开选择器，或手动补写语言。
-
-
-
-## 目录结构
+## Project layout
 
 ```
 tips/
 ├── src/
-│   ├── main.ts              # 插件入口：设置、命令、扫描调度
-│   ├── settings.ts          # 设置页
-│   ├── i18n.ts              # 六语文案与语言解析
-│   ├── types.ts             # 设置与候选类型
-│   ├── data/languages.ts    # 内置语言与 Obsidian 内置处理器
+│   ├── main.ts              # Plugin entry: settings, commands, scan scheduling
+│   ├── settings.ts          # Settings tab
+│   ├── i18n.ts              # Strings and language resolution
+│   ├── types.ts             # Settings and candidate types
+│   ├── data/languages.ts    # Built-in languages and Obsidian processors
 │   ├── core/
-│   │   ├── preferences.ts   # 设置的合并与规范化
-│   │   ├── scanner.ts       # 扫描已安装插件的代码块名
-│   │   ├── snippets.ts      # 内容模板：剥围栏、规范化、导入合并
-│   │   └── store.ts         # 候选合并、过滤与排序
+│   │   ├── preferences.ts   # Settings merge and normalisation
+│   │   ├── scanner.ts       # Scans installed plugins for code block names
+│   │   ├── snippets.ts      # Templates: fence stripping, normalisation, import merge
+│   │   └── store.ts         # Candidate merging, filtering and sorting
 │   ├── editor/
-│   │   ├── codeblocks.ts    # 围栏定位、? 触发点与替换计算
-│   │   └── extension.ts     # CodeMirror 6 扩展：悬浮按钮 + 弹窗时机
+│   │   ├── codeblocks.ts    # Fence detection, ? trigger point and replacement maths
+│   │   └── extension.ts     # CodeMirror 6 extension: button + panel timing
 │   └── ui/
-│       ├── picker.ts         # 双栏语言候选面板
-│       ├── position.ts       # 两个面板共用的定位与滚动辅助
-│       ├── snippet-picker.ts # 内容模板面板（左名字 / 右预览）
-│       └── snippet-modals.ts # 模板编辑与导入导出弹窗
+│       ├── picker.ts         # Two-column language picker
+│       ├── position.ts       # Shared positioning and scrolling helpers
+│       ├── snippet-picker.ts # Template panel (names / preview)
+│       └── snippet-modals.ts # Template editing and import/export modals
 ├── styles.css
 ├── manifest.json
 └── esbuild.config.mjs
 ```
 
-
-
-## 更新日志
+## Changelog
 
 ### 2.0.0
 
-**内容模板（新功能）**
+**Content templates (new)**
 
-- 在代码块内容的第一行输入 `?` 即可调出模板面板：左列名称、右列完整内容预览，`↑↓` 选择、`Enter` 插入
-- 插入时**整段替换**代码块内容（围栏保持不动），光标落在新内容末尾
-- `?` 必须是内容区的第一个字符，因此 `a ? b : c` 这类写法不会误触；`?` 之后可继续输入按名称过滤
-- 模板在「设置 → Tips → 内容模板」里按代码块条目分组管理，支持添加 / 编辑 / 删除
-- 粘贴内容时可带整段代码块，外层的 ```` ``` ```` 会被自动去掉
+- Type `?` on the first line of a code block to bring up the template panel: names on the left, a full preview on the right, `↑↓` to select and `Enter` to insert
+- Inserting **replaces the whole body** (fences stay put) and leaves the cursor at the end of the new content
+- `?` must be the first character of the body, so `a ? b : c` never triggers it; typing after `?` filters by name
+- Templates are managed per code block entry under Settings → Tips → Content templates, with add / edit / delete
+- Pasting can include a whole code block — the surrounding ```` ``` ```` is stripped automatically
 
-**导入 / 导出**
+**Import / export**
 
-- 导出为 JSON，按 **plugins / builtin / custom** 三组分开，接收方分别对待
-- 支持复制到剪贴板，或直接导出 `tips.json` 文件；导入支持粘贴文本或选择文件
-- 导入为追加语义：同名同内容跳过，当前没有的条目跳过并提示
-- 自定义条目若不存在会**自动补建**（备注留空），插件与内置的条目仍然只跳过
-- 新增「自动读取插件附带的模板」：插件目录下的 `tips.json` 会自动参与展示（只读，不写入你的列表）
+- Exports to JSON, split into **plugins / builtin / custom** groups so the receiver can treat them differently
+- Copy to clipboard, or export a `tips.json` file; importing accepts pasted text or a chosen file
+- Import is additive: identical entries are skipped, entries from uninstalled plugins are skipped with a notice
+- Custom entries that don't exist yet are **created automatically** (with a blank note); plugin and builtin entries are only ever skipped
+- New "Read templates bundled with plugins": a `tips.json` inside a plugin folder is shown automatically (read-only, never written into your list)
 
-**其它**
+**Other**
 
-- 界面语言扩展为六种：简体中文、English、Русский、Français、Español、العربية
-- Arabic 等 RTL 语言自动处理书写方向
-- 候选面板默认宽度 580 px，上限提升至 920 px
-- 新增「候选按字母排序」「在语言行编辑时打开候选」开关
-- 设置页文案统一（条目 / 模板），交互细节与样式对齐 Obsidian 原生设置项
+- Interface language extended to six: 简体中文, English, Русский, Français, Español, العربية
+- RTL languages such as Arabic get the right writing direction automatically
+- Default panel width is 580 px, with the ceiling raised to 920 px
+- New toggles for "Sort candidates alphabetically" and "Open candidates while editing the info line"
+- Settings wording unified (entry / template), with interactions and styling aligned to Obsidian's native settings items
 
 ### 1.0.0
 
-- 首个版本，解决两件事：代码块语言不好选、插件代码块名记不住
-- 悬浮按钮：鼠标移入代码块时在右下角显示当前语言，点击即可切换
-- 输入 ```` ``` ```` 自动弹出双栏候选（编程语言 / 内置、插件 / 自定义）
-- 自动扫描已安装插件注册的代码块条目，并标注来源
-- 支持自定义代码块条目（名称 + 备注）
+- First release, solving two things: languages are awkward to pick, plugin code block names are easy to forget
+- Floating button: hover a code block to see its language in the corner, click to switch
+- Typing ```` ``` ```` opens the two-column picker (languages / built-in, plugins / custom)
+- Scans installed plugins for registered code block entries and labels their source
+- Custom code block entries (name + note)
 
+## Author
 
+- GitHub: [@Tan-TanZi](https://github.com/Tan-TanZi)
 
-## 作者
-
-- GitHub：[@Tan-TanZi](https://github.com/Tan-TanZi)
-
-
-
-## 许可
+## License
 
 [MIT](LICENSE) © 2026 Tan-TanZi
