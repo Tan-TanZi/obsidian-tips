@@ -42,8 +42,9 @@ export function placePicker(
 	anchor: PickerAnchor,
 	gap: number = PICKER_ANCHOR_GAP,
 ): void {
-	// 用 setCssProps 而不是直接给 el.style 赋值：后者会被审核规则判为「直接设置样式」
-	el.setCssProps({ 'max-height': 'none' });
+	// 位置一律通过 CSS 变量下发，由 styles.css 里的 .tips-picker 消费。
+	// 不用 setCssProps 直接写 top/left 这类普通属性——审核规则只认可「CSS 类」或「CSS 变量」两种形式。
+	el.setCssProps({ '--tips-picker-max-height': 'none' });
 
 	const width = el.offsetWidth;
 	const height = el.offsetHeight;
@@ -57,22 +58,25 @@ export function placePicker(
 	const space = Math.max(0, preferAbove ? spaceAbove : spaceBelow);
 	const maxHeight = Math.min(MAX_PANEL_HEIGHT, space);
 
+	const shared = {
+		'--tips-picker-max-height': `${Math.round(maxHeight)}px`,
+		'--tips-picker-left': `${Math.round(left)}px`,
+	};
+
 	if (preferAbove) {
 		// 用 bottom 固定底边：过滤后内容变少时面板向下收，始终贴着锚点
 		el.setCssProps({
-			'max-height': `${Math.round(maxHeight)}px`,
-			left: `${Math.round(left)}px`,
-			top: 'auto',
-			bottom: `${Math.round(window.innerHeight - anchor.top + gap)}px`,
+			...shared,
+			'--tips-picker-top': 'auto',
+			'--tips-picker-bottom': `${Math.round(window.innerHeight - anchor.top + gap)}px`,
 		});
 	} else {
 		// 顶边固定贴着锚点下边缘。高度已限制在 spaceBelow 之内，底边不会溢出，
 		// 因此不需要再对 top 做位移修正——那正是以前盖住光标的原因。
 		el.setCssProps({
-			'max-height': `${Math.round(maxHeight)}px`,
-			left: `${Math.round(left)}px`,
-			top: `${Math.round(Math.max(VIEWPORT_MARGIN, anchor.bottom + gap))}px`,
-			bottom: 'auto',
+			...shared,
+			'--tips-picker-top': `${Math.round(Math.max(VIEWPORT_MARGIN, anchor.bottom + gap))}px`,
+			'--tips-picker-bottom': 'auto',
 		});
 	}
 }
