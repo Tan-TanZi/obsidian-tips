@@ -1,7 +1,7 @@
 {
 	"id": "tips",
 	"name": "Tips",
-	"version": "2.1.1",
+	"version": "3.0.0",
 	"minAppVersion": "1.8.7",
 	"description": "Pick code block languages from a floating two-column panel, with built-in languages, Mermaid, plugin-registered names, and reusable content templates.",
 	"author": "Tan-TanZi",

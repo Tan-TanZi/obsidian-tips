@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-tips",
-	"version": "2.1.1",
+	"version": "3.0.0",
 	"description": "Smarter code blocks for Obsidian: pick a language from a floating two-column panel, with built-in languages, Mermaid and code block names registered by installed plugins.",
 	"main": "main.js",
 	"type": "module",

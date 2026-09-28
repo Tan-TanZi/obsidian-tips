@@ -9,7 +9,7 @@ Tips is an Obsidian plugin that solves two things:
 1. Obsidian has no language picker on code blocks — you have to type the info string by hand (` ```java `), which is easy to get wrong and tedious to type.
 2. Many plugins (such as sketch-mechanisms and word-cloud) are triggered through code blocks, but over time you forget the activation name (`mechanism`, `wordcloud`, …).
 
-Tips gathers **built-in languages + Obsidian's own processors (mermaid / math / query) + code block names registered by your installed plugins + your own custom entries** into a single two-column panel.
+Tips gathers **built-in languages + Obsidian's own processors (mermaid / math / query) + code block names registered by your installed plugins + identifiers from their bundled `tips.json` + your own custom entries** into a single two-column panel.
 
 <img src="img/1.jpg" alt="1" style="zoom:80%;" />
 
@@ -60,7 +60,8 @@ The panel is always anchored directly **below the cursor or the button** (flippi
 
 - **Built-in languages**: around 100 common language identifiers, with the full language name as the note.
 - **Obsidian processors**: `mermaid`, `math`, `query`.
-- **Plugin scan**: reads each plugin's `main.js` under the plugins folder, extracts names from `registerMarkdownCodeBlockProcessor("xxx", …)` and shows which plugin they belong to (disabled plugins are labelled).
+- **Plugin scan**: reads each plugin's `main.js` under the plugins folder, extracts names from `registerMarkdownCodeBlockProcessor("xxx", …)` and shows which plugin they belong to (disabled plugins are labelled). Two extra clues are used when the literal name is not enough: the `.block-language-*` classes in the plugin's `styles.css`, and string constants that are later passed to the registration call.
+- **Templates bundled with plugins**: identifiers that appear in a plugin's `tips.json` are added as candidates too. This covers plugins that register their code blocks **dynamically**, where the name only exists at runtime and cannot be read from the source.
 - **Custom entries**: add or remove them in settings at any time (entry + note).
 
 ### 4. Content templates (no more memorising syntax)
@@ -123,8 +124,9 @@ A few conventions:
 
 - Keys are **code block identifiers**, values are arrays of templates (each with `name` and `body`)
 - Do not include the surrounding fence in `body`
-- This is **read-only**: nothing is written into the user's template list, and it disappears when your plugin is uninstalled
-- Users can turn off "read templates bundled with plugins" in settings
+- Identifiers written here are added to the code block candidate list, so plugins that register their blocks dynamically still show up in the ` ``` ` picker
+- Templates are merged into the user's template list on rescan, so they sit alongside the user's own entries and behave like them
+- Everything here disappears when your plugin is uninstalled; users can turn off "Read templates bundled with plugins" in settings
 
 ## Installation
 
@@ -159,7 +161,7 @@ During development you can also clone this repository straight into `<vault>/.ob
 | Candidate panel width | 580 px | Range 280–920 px, shared by the language and template panels |
 | Include the built-in language list | On | When off, only the entries you need remain in the left column |
 | Scan installed plugins for code block names | On | When off, no plugin files are read |
-| Read templates bundled with plugins | On | Scans plugin folders for `tips.json`; read-only, never written into your template list |
+| Read templates bundled with plugins | On | Scans plugin folders for `tips.json`; its identifiers join the candidate list and its templates are merged into yours on rescan |
 | Rescan now | —— | Triggers a scan manually and reports the result |
 | Custom code block entries | Empty | Entry + note, add or remove at any time |
 | Content templates | Empty | Reusable code block bodies per entry, invoked with `?` on the first line; supports import / export |
@@ -174,11 +176,12 @@ The plugin also registers two commands (search for "Tips" in the command palette
 - The editor UI is built on CodeMirror 6's public extension points: a `ViewPlugin` registered through `registerEditorExtension` adds a line decoration to the last line of every fenced code block and places a `WidgetType` button at the end of that line; the picker is a fixed-position layer attached to `document.body`.
 - Code blocks are detected with line-level regex on fences (both ```` ``` ```` and `~~~` are supported), and unclosed fences are handled correctly, so the panel reacts the moment the third backtick is typed.
 - The plugin scan **does not rely on any internal API**: `Vault.configDir` and `Vault.adapter` are both public, so it works on desktop and mobile alike. The enabled-plugin list comes from the vault config file `community-plugins.json`.
+- A plugin's `tips.json` is where an author can distribute reference templates. Its identifiers are fed into the candidate list and its templates are merged into the local template table, which is what makes plugins with **runtime-registered** code block names usable.
 - UI strings ship in six languages (Chinese, English, Russian, French, Spanish and Arabic — each language name always written in its own script), with no third-party i18n library.
 
 ## Known limitations
 
-- The plugin scan relies on **literal** calls in `main.js`. The rare plugin that builds its registration name from variables will be missed — add it as a custom entry instead.
+- The plugin scan relies on **literal** calls in `main.js`. A plugin that builds its registration name from variables cannot be read from the source — if it ships a `tips.json`, its identifiers still reach the picker; otherwise add them as custom entries. Plugins in that situation are listed in settings.
 - The floating button and the pickers work in **edit mode**; reading mode uses a separate rendering pipeline and is not supported yet.
 - Scanning reads every plugin's `main.js` (usually tens of KB to a few MB). It runs asynchronously in the background on first load and can be a little slow on mobile with large vaults; it can be turned off in settings.
 - Code blocks are detected with line-level regex rather than a syntax tree, so extreme nesting (a fence at the start of a line inside a code block) may be misread.
@@ -213,6 +216,28 @@ tips/
 ```
 
 ## Changelog
+
+### 3.0.0
+
+**Fixed: templates bundled by plugins now actually reach the picker**
+
+A plugin's `tips.json` was being read, counted and shown in settings, but the identifiers inside it never made it into the ` ``` ` picker — so a plugin that registers its code blocks dynamically (from a variable, which static analysis cannot resolve) looked "detected" yet was unusable. The bundled identifiers are now merged into the candidate list as well, subject to **Read templates bundled with plugins** and de-duplicated against names found by the scan.
+
+**Scanning**
+
+- Two extra clues are now used when reading a plugin, so names that used to be missed are found: the `.block-language-*` classes in the plugin's `styles.css`, and string constants that get passed to `registerMarkdownCodeBlockProcessor()` later on (only when the variable resolves to exactly one string literal).
+- Tested against the Excalidraw plugin: both `excalidraw` and `excalidraw-script-install` are detected, with nothing missed.
+- Plugins whose names still cannot be resolved are reported in settings, listing which ones and why.
+
+**Settings**
+
+- A new note under the scan section states how many bundled templates were read, from which plugins, and where to find them — styled like the existing warning, but with an accent-coloured bar since it reports a state rather than a problem.
+- Template groups are now **collapsed by default**; the group heading carries its template count, e.g. `LMath (13)`, so you can see at a glance which groups have content.
+- Every row inside a group (the identifier row and its templates) uses a consistent 8px vertical rhythm.
+
+**Changed**
+
+- Bundled templates are merged into your template list on rescan, so they appear side by side with your own and can be edited or removed. They come back the next time you rescan.
 
 ### 2.1.1
 

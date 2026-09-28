@@ -300,6 +300,11 @@
 	line-height: 1.5;
 }
 
+/* 陈述性提示：与警告条同构，只是左侧色条用主题色，表示「这是状态」而非「这是问题」 */
+.tips-warning.is-info {
+	border-left-color: var(--interactive-accent);
+}
+
 /* 描述里的按键强调 */
 .tips-key {
 	color: var(--text-accent);
@@ -355,6 +360,12 @@
 	border-left: 2px solid var(--background-modifier-border);
 }
 
+/* 嵌套在分组里的每一行（标识符行，以及它下面的模板行）统一收紧上下留白。
+   Obsidian 默认的 12px 在这个层级显得过松，两端对齐后也更像同一个整体。 */
+.tips-snippet-group .setting-item {
+	padding: 8px 0;
+}
+
 /* ---------- 弹窗 ---------- */
 
 .tips-modal-buttons {
@@ -386,3 +397,4 @@
 .tips-snippet-group.is-muted > summary {
 	color: var(--text-faint);
 }
+
