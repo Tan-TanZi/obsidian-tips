@@ -42,7 +42,8 @@ export function placePicker(
 	anchor: PickerAnchor,
 	gap: number = PICKER_ANCHOR_GAP,
 ): void {
-	el.style.maxHeight = '';
+	// 用 setCssProps 而不是直接给 el.style 赋值：后者会被审核规则判为「直接设置样式」
+	el.setCssProps({ 'max-height': 'none' });
 
 	const width = el.offsetWidth;
 	const height = el.offsetHeight;
@@ -56,20 +57,24 @@ export function placePicker(
 	const space = Math.max(0, preferAbove ? spaceAbove : spaceBelow);
 	const maxHeight = Math.min(MAX_PANEL_HEIGHT, space);
 
-	el.style.maxHeight = `${Math.round(maxHeight)}px`;
-
 	if (preferAbove) {
 		// 用 bottom 固定底边：过滤后内容变少时面板向下收，始终贴着锚点
-		el.style.top = '';
-		el.style.bottom = `${Math.round(window.innerHeight - anchor.top + gap)}px`;
+		el.setCssProps({
+			'max-height': `${Math.round(maxHeight)}px`,
+			left: `${Math.round(left)}px`,
+			top: 'auto',
+			bottom: `${Math.round(window.innerHeight - anchor.top + gap)}px`,
+		});
 	} else {
 		// 顶边固定贴着锚点下边缘。高度已限制在 spaceBelow 之内，底边不会溢出，
 		// 因此不需要再对 top 做位移修正——那正是以前盖住光标的原因。
-		el.style.bottom = '';
-		el.style.top = `${Math.round(Math.max(VIEWPORT_MARGIN, anchor.bottom + gap))}px`;
+		el.setCssProps({
+			'max-height': `${Math.round(maxHeight)}px`,
+			left: `${Math.round(left)}px`,
+			top: `${Math.round(Math.max(VIEWPORT_MARGIN, anchor.bottom + gap))}px`,
+			bottom: 'auto',
+		});
 	}
-
-	el.style.left = `${Math.round(left)}px`;
 }
 
 /**

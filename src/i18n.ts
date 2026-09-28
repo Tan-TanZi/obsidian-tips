@@ -669,22 +669,18 @@ function matchLanguage(tag: string): Lang | null {
 	return null;
 }
 
-/** 读取 Obsidian 当前的界面语言；读不到时退回浏览器语言。 */
-export function detectLanguage(): Lang {
-	try {
-		const stored = window.localStorage.getItem('language');
-		if (stored) {
-			const matched = matchLanguage(stored);
-			if (matched) return matched;
-		}
-	} catch {
-		// localStorage 不可用时忽略
-	}
-	return matchLanguage(window.navigator.language ?? '') ?? 'en';
+/**
+ * 把语言标签映射到受支持的语言，认不出来就回退英文。
+ *
+ * 调用方传入 Obsidian `getLanguage()` 的结果，而不是在这里自己探测：
+ * 一是官方推荐用该 API，二是本模块因此不依赖 obsidian 包，可以单独跑测试。
+ */
+export function detectLanguage(tag: string): Lang {
+	return matchLanguage(tag) ?? 'en';
 }
 
-export function resolveLanguage(setting: 'auto' | Lang): Lang {
-	return setting === 'auto' ? detectLanguage() : setting;
+export function resolveLanguage(setting: 'auto' | Lang, tag: string): Lang {
+	return setting === 'auto' ? detectLanguage(tag) : setting;
 }
 
 /** 生成一个翻译函数；`{name}` 形式的占位符会被 vars 替换。 */

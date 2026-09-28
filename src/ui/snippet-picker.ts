@@ -38,44 +38,44 @@ export class SnippetPicker {
 	constructor(options: SnippetPickerOptions) {
 		this.options = options;
 
-		const el = document.createElement('div');
+		const el = createDiv();
 		el.className = 'tips-picker tips-snippet-picker';
 		el.setAttribute('role', 'listbox');
 		// 交给浏览器按内容判断书写方向，阿拉伯语等 RTL 语言才能正常排版
 		el.setAttribute('dir', 'auto');
-		el.style.setProperty('--tips-picker-width', `${Math.round(options.width)}px`);
+		el.setCssProps({ '--tips-picker-width': `${Math.round(options.width)}px` });
 
-		const body = document.createElement('div');
+		const body = createDiv();
 		body.className = 'tips-snippet-body';
 
 		// 左列：条目名
-		const listCol = document.createElement('div');
+		const listCol = createDiv();
 		listCol.className = 'tips-snippet-col';
-		const listTitle = document.createElement('div');
+		const listTitle = createDiv();
 		listTitle.className = 'tips-picker-title';
 		listTitle.textContent = options.t('picker.snippet.title');
 
-		const listEl = document.createElement('div');
+		const listEl = createDiv();
 		listEl.className = 'tips-snippet-list';
-		const emptyEl = document.createElement('div');
+		const emptyEl = createDiv();
 		emptyEl.className = 'tips-picker-empty';
 		emptyEl.hidden = true;
 		listEl.append(emptyEl);
 		listCol.append(listTitle, listEl);
 
 		// 右列：内容预览
-		const previewCol = document.createElement('div');
+		const previewCol = createDiv();
 		previewCol.className = 'tips-snippet-col';
-		const previewTitle = document.createElement('div');
+		const previewTitle = createDiv();
 		previewTitle.className = 'tips-picker-title';
 		previewTitle.textContent = options.t('picker.snippet.preview');
-		const previewEl = document.createElement('pre');
+		const previewEl = createEl('pre');
 		previewEl.className = 'tips-snippet-preview';
 		previewCol.append(previewTitle, previewEl);
 
 		body.append(listCol, previewCol);
 
-		const hintEl = document.createElement('div');
+		const hintEl = createDiv();
 		hintEl.className = 'tips-picker-hint';
 		hintEl.textContent = options.t('picker.snippet.hint');
 
@@ -170,11 +170,11 @@ export class SnippetPicker {
 		}
 
 		this.items.forEach((item, index) => {
-			const itemEl = document.createElement('div');
+			const itemEl = createDiv();
 			itemEl.className = 'tips-snippet-item';
 			itemEl.title = item.name;
 
-			const nameEl = document.createElement('span');
+			const nameEl = createSpan();
 			nameEl.className = 'tips-snippet-name';
 			nameEl.textContent = item.name;
 			itemEl.append(nameEl);

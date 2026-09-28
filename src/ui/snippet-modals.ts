@@ -150,7 +150,7 @@ export class SnippetTransferModal extends Modal {
 		contentEl.createEl('h2', { text: this.t('modal.transfer.title') });
 
 		// —— 导出 ——
-		contentEl.createEl('h3', { text: this.t('modal.transfer.export') });
+		new Setting(contentEl).setName(this.t('modal.transfer.export')).setHeading();
 		contentEl.createEl('div', {
 			cls: 'setting-item-description',
 			text: this.t('modal.transfer.export.desc'),
@@ -176,7 +176,7 @@ export class SnippetTransferModal extends Modal {
 			});
 
 		// —— 导入 ——
-		contentEl.createEl('h3', { text: this.t('modal.transfer.import') });
+		new Setting(contentEl).setName(this.t('modal.transfer.import')).setHeading();
 		contentEl.createEl('div', {
 			cls: 'setting-item-description',
 			text: this.t('modal.transfer.import.desc'),
@@ -225,7 +225,7 @@ export class SnippetTransferModal extends Modal {
 		try {
 			const blob = new Blob([content], { type: 'application/json' });
 			const url = URL.createObjectURL(blob);
-			const link = document.createElement('a');
+			const link = createEl('a');
 			link.href = url;
 			link.download = BUNDLED_SNIPPET_FILE;
 			document.body.appendChild(link);

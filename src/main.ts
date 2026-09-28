@@ -1,4 +1,4 @@
-import { MarkdownView, Notice, Plugin, type Editor } from 'obsidian';
+import { getLanguage, MarkdownView, Notice, Plugin, type Editor } from 'obsidian';
 import type { EditorView } from '@codemirror/view';
 
 import { mergeSettings } from './core/preferences';
@@ -100,7 +100,7 @@ export default class TipsPlugin extends Plugin {
 
 	/** 依据设置解析当前界面语言并重建翻译函数。 */
 	applyLanguage(): void {
-		this.lang = resolveLanguage(this.settings.language);
+		this.lang = resolveLanguage(this.settings.language, getLanguage());
 		this.t = createTranslator(this.lang);
 	}
 

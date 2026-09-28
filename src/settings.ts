@@ -116,7 +116,6 @@ export class TipsSettingTab extends PluginSettingTab {
 				slider
 					.setLimits(PICKER_WIDTH_MIN, PICKER_WIDTH_MAX, PICKER_WIDTH_STEP)
 					.setValue(settings.pickerWidth)
-					.setDynamicTooltip()
 					.onChange(async (value) => {
 						settings.pickerWidth = value;
 						// 拖动过程中高频触发，只落盘、不刷新编辑器
@@ -189,7 +188,7 @@ export class TipsSettingTab extends PluginSettingTab {
 			);
 
 		// —— 自定义条目 ——
-		containerEl.createEl('h3', { cls: 'tips-settings-heading', text: t('setting.custom') });
+		new Setting(containerEl).setName(t('setting.custom')).setHeading();
 		const customSection = this.createSection(containerEl);
 		customSection.createDiv({ cls: 'setting-item-description', text: t('setting.custom.desc') });
 
@@ -210,7 +209,7 @@ export class TipsSettingTab extends PluginSettingTab {
 		customSection.createDiv({ cls: 'tips-warning', text: t('setting.custom.restartHint') });
 
 		// —— 内容模板 ——
-		containerEl.createEl('h3', { cls: 'tips-settings-heading', text: t('setting.snippets') });
+		new Setting(containerEl).setName(t('setting.snippets')).setHeading();
 		const snippetSection = this.createSection(containerEl);
 
 		// 描述里的问号单独渲染，便于用主题色加粗强调

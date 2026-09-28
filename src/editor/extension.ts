@@ -58,17 +58,17 @@ class CodeblockButtonWidget extends WidgetType {
 	}
 
 	toDOM(): HTMLElement {
-		const el = document.createElement('span');
+		const el = createSpan();
 		el.className = 'tips-cb-btn';
 		el.dataset.tipsBlock = String(this.block.startLine);
 		el.setAttribute('aria-label', this.tooltip);
 		el.setAttribute('title', this.tooltip);
 
-		const iconEl = document.createElement('span');
+		const iconEl = createSpan();
 		iconEl.className = 'tips-cb-btn-icon';
 		setIcon(iconEl, 'code-2');
 
-		const labelEl = document.createElement('span');
+		const labelEl = createSpan();
 		labelEl.className = 'tips-cb-btn-label';
 		labelEl.textContent = this.label;
 

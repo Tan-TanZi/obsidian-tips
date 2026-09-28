@@ -37,15 +37,15 @@ export class LangPicker {
 	constructor(options: LangPickerOptions) {
 		this.options = options;
 
-		const el = document.createElement('div');
+		const el = createDiv();
 		el.className = 'tips-picker';
 		el.setAttribute('role', 'listbox');
 		// 交给浏览器按内容判断书写方向，阿拉伯语等 RTL 语言才能正常排版
 		el.setAttribute('dir', 'auto');
 		// 宽度来自设置，通过 CSS 变量交给样式表，方便用户再用 CSS 片段覆盖
-		el.style.setProperty('--tips-picker-width', `${Math.round(options.width)}px`);
+		el.setCssProps({ '--tips-picker-width': `${Math.round(options.width)}px` });
 
-		const columnsEl = document.createElement('div');
+		const columnsEl = createDiv();
 		columnsEl.className = 'tips-picker-columns';
 
 		const titles: [string, string] = [options.t('panel.languages'), options.t('panel.plugins')];
@@ -55,7 +55,7 @@ export class LangPicker {
 		const right = this.buildColumn(titles[1], emptyTexts[1]);
 		columnsEl.append(left.colEl, right.colEl);
 
-		const hintEl = document.createElement('div');
+		const hintEl = createDiv();
 		hintEl.className = 'tips-picker-hint';
 		hintEl.textContent = options.t('panel.hint');
 
@@ -71,17 +71,17 @@ export class LangPicker {
 	}
 
 	private buildColumn(title: string, emptyText: string): ColumnParts {
-		const colEl = document.createElement('div');
+		const colEl = createDiv();
 		colEl.className = 'tips-picker-col';
 
-		const titleEl = document.createElement('div');
+		const titleEl = createDiv();
 		titleEl.className = 'tips-picker-title';
 		titleEl.textContent = title;
 
-		const listEl = document.createElement('div');
+		const listEl = createDiv();
 		listEl.className = 'tips-picker-list';
 
-		const emptyEl = document.createElement('div');
+		const emptyEl = createDiv();
 		emptyEl.className = 'tips-picker-empty';
 		emptyEl.textContent = emptyText;
 		emptyEl.hidden = true;
@@ -207,7 +207,7 @@ export class LangPicker {
 			parts.emptyEl.hidden = items.length > 0;
 
 			items.forEach((item, index) => {
-				const itemEl = document.createElement('div');
+				const itemEl = createDiv();
 				itemEl.className = 'tips-picker-item';
 				// 原生 title 提示：备注可能被省略号截断，这里给出完整内容
 				itemEl.title = item.note.length > 0 ? `${item.value} — ${item.note}` : item.value;
@@ -215,11 +215,11 @@ export class LangPicker {
 					itemEl.classList.add('is-disabled');
 				}
 
-				const valueEl = document.createElement('span');
+				const valueEl = createSpan();
 				valueEl.className = 'tips-picker-value';
 				valueEl.textContent = item.value;
 
-				const noteEl = document.createElement('span');
+				const noteEl = createSpan();
 				noteEl.className = 'tips-picker-note';
 				noteEl.textContent = item.note;
 
