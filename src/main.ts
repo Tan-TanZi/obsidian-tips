@@ -7,8 +7,14 @@ import {
 	scanInstalledPlugins,
 	type BundledSnippetSet,
 	type ScannedProcessor,
+	type UnparsedPlugin,
 } from './core/scanner';
-import { normalizeSnippets, snippetKey, totalSnippets } from './core/snippets';
+import {
+	mergeBundledSnippets,
+	normalizeSnippets,
+	snippetKey,
+	totalSnippets,
+} from './core/snippets';
 import { buildCandidates, filterColumn } from './core/store';
 import { OBSIDIAN_PROCESSORS } from './data/languages';
 import { codeblockTipsExtension, openPickerAtCursor, refreshCodeblockTips } from './editor/extension';
@@ -42,6 +48,8 @@ export default class TipsPlugin extends Plugin {
 	t: Translate = createTranslator('zh');
 
 	private scanned: ScannedProcessor[] = [];
+	/** 使用了变量式注册、名字无法自动识别的插件 */
+	private unparsed: UnparsedPlugin[] = [];
 	/** 插件随包附带的模板，只在内存里，不写进用户设置 */
 	private bundled: BundledSnippetSet[] = [];
 	private cachedColumns: CandidateColumns | null = null;
@@ -245,20 +253,33 @@ export default class TipsPlugin extends Plugin {
 		}
 		groups.push({ label: this.t('setting.snippets.customGroup'), identifiers: custom });
 
-		// 3. 插件：按插件归组，组内与组间都按字母序
-		const byPlugin = new Map<string, { name: string; values: string[] }>();
-		for (const item of this.scanned) {
-			let group = byPlugin.get(item.pluginId);
+		// 3. 插件：按插件归组，组内与组间都按字母序。
+		//    除了扫描到的代码块，也要带上该插件 tips.json 里的标识符——
+		//    有些插件用变量注册，名字扫不出来，只能靠这份文件补上。
+		const byPlugin = new Map<string, { name: string; values: Set<string> }>();
+		const pluginGroup = (pluginId: string, pluginName: string): { name: string; values: Set<string> } => {
+			let group = byPlugin.get(pluginId);
 			if (!group) {
-				group = { name: item.pluginName, values: [] };
-				byPlugin.set(item.pluginId, group);
+				group = { name: pluginName, values: new Set<string>() };
+				byPlugin.set(pluginId, group);
 			}
-			if (!group.values.includes(item.value)) group.values.push(item.value);
+			return group;
+		};
+
+		for (const item of this.scanned) {
+			pluginGroup(item.pluginId, item.pluginName).values.add(item.value);
 		}
+		for (const set of this.bundled) {
+			const group = pluginGroup(set.pluginId, set.pluginName);
+			for (const identifier of Object.keys(set.table)) group.values.add(identifier);
+		}
+
 		const pluginGroups = [...byPlugin.values()].sort((a, b) => a.name.localeCompare(b.name, 'en'));
 		for (const group of pluginGroups) {
-			group.values.sort((a, b) => a.localeCompare(b, 'en'));
-			groups.push({ label: group.name, identifiers: group.values });
+			groups.push({
+				label: group.name,
+				identifiers: [...group.values].sort((a, b) => a.localeCompare(b, 'en')),
+			});
 		}
 
 		// 有模板但当前不可用的标识符（例如对应的插件已卸载）。
@@ -277,7 +298,13 @@ export default class TipsPlugin extends Plugin {
 
 	private getBaseColumns(): CandidateColumns {
 		if (!this.cachedColumns) {
-			this.cachedColumns = buildCandidates(this.settings, this.scanned, this.lang, this.t);
+			this.cachedColumns = buildCandidates(
+				this.settings,
+				this.scanned,
+				this.bundled,
+				this.lang,
+				this.t,
+			);
 		}
 		return this.cachedColumns;
 	}
@@ -291,6 +318,7 @@ export default class TipsPlugin extends Plugin {
 
 		if (!wantProcessors && !wantBundled) {
 			this.scanned = [];
+			this.unparsed = [];
 			this.bundled = [];
 			this.invalidateCandidates();
 			return;
@@ -298,8 +326,26 @@ export default class TipsPlugin extends Plugin {
 
 		if (!silent) new Notice(this.t('notice.scanning'));
 		try {
-			this.scanned = wantProcessors ? await scanInstalledPlugins(this.app) : [];
+			if (wantProcessors) {
+				const result = await scanInstalledPlugins(this.app);
+				this.scanned = result.processors;
+				this.unparsed = result.unparsed;
+			} else {
+				this.scanned = [];
+				this.unparsed = [];
+			}
 			this.bundled = wantBundled ? await scanBundledSnippets(this.app) : [];
+
+			// 插件自带的模板并入本地模板表：同名更新、新的追加、本地独有的保留
+			const merged = mergeBundledSnippets(
+				this.settings.snippets,
+				this.bundled.map((set) => set.table),
+			);
+			if (merged.changed) {
+				this.settings.snippets = merged.table;
+				await this.saveData(this.settings);
+			}
+
 			this.invalidateCandidates();
 			if (!silent) {
 				new Notice(
@@ -308,9 +354,22 @@ export default class TipsPlugin extends Plugin {
 						count: this.scanned.length,
 					}),
 				);
+				const bundled = this.getBundledSummary();
+				if (bundled.plugins > 0) {
+					new Notice(
+						this.t('notice.scanDoneBundled', {
+							plugins: bundled.plugins,
+							templates: bundled.templates,
+						}),
+					);
+					if (merged.changed) {
+						new Notice(this.t('notice.bundledMerged', { count: merged.added }));
+					}
+				}
 			}
 		} catch (error) {
 			this.scanned = [];
+			this.unparsed = [];
 			this.bundled = [];
 			this.invalidateCandidates();
 			if (!silent) {
@@ -318,6 +377,40 @@ export default class TipsPlugin extends Plugin {
 				new Notice(this.t('notice.scanFailed', { message }));
 			}
 		}
+	}
+
+	/** 存在变量式注册、需要手动补充条目的插件 */
+	getUnparsedPlugins(): UnparsedPlugin[] {
+		return this.unparsed;
+	}
+
+	/**
+	 * 把插件附带的模板并入用户自己的模板表。
+	 *
+	 * 规则（按「插件自带优先」）：
+	 * - tips.json 里有、本地没有的 → 追加；
+	 * - 同标识符下**同名**的 → 用 tips.json 的内容覆盖（作者改了内容就跟着更新）；
+	 * - 本地有、tips.json 里没有的 → 原样保留。作者迭代时删掉的旧条目因此不会被抹掉，
+	 *   它会继续留在本地；等这个插件卸载后，就会落到「其他条目」分组里。
+	 *
+	 * 只改本地的 data.json，绝不写回插件目录。
+	 */
+
+
+	/** 附带模板的插件数量，以及其中的模板总条数（用于设置页与重扫提示） */
+	getBundledSummary(): { plugins: number; templates: number } {
+		let templates = 0;
+		for (const set of this.bundled) {
+			for (const list of Object.values(set.table)) templates += list.length;
+		}
+		return { plugins: this.bundled.length, templates };
+	}
+
+	/** 提供附带模板的插件名，按字母序（设置页提示块里逐个列出） */
+	getBundledPluginNames(): string[] {
+		return this.bundled
+			.map((set) => set.pluginName)
+			.sort((a, b) => a.localeCompare(b, 'en'));
 	}
 
 	// —— 编辑器刷新 ——

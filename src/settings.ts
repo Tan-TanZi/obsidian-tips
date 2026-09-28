@@ -187,6 +187,33 @@ export class TipsSettingTab extends PluginSettingTab {
 				}),
 			);
 
+		// 有插件用变量注册时，明确告诉用户「不是漏扫，是识别不了」，并给出补法
+		const unparsed = this.plugin.getUnparsedPlugins();
+		if (unparsed.length > 0) {
+			const names = unparsed.map((item) => item.pluginName).join('、');
+			const hint = containerEl.createDiv({ cls: 'tips-warning' });
+			hint.createDiv({ text: t('setting.unparsed', { count: unparsed.length }) });
+			hint.createDiv({ text: t('setting.unparsed.desc', { list: names }) });
+		}
+
+		// 附带模板的读取结果。与上面的警告同构，只是左侧色条换成主题色——
+		// 它陈述的是「读到了什么」，不是需要用户去处理的问题。
+		const bundled = this.plugin.getBundledSummary();
+		if (bundled.plugins > 0) {
+			const hint = containerEl.createDiv({ cls: 'tips-warning is-info' });
+			hint.createDiv({
+				text: t('setting.bundled', {
+					plugins: bundled.plugins,
+					count: bundled.templates,
+				}),
+			});
+			hint.createDiv({
+				text: t('setting.bundled.desc', {
+					list: this.plugin.getBundledPluginNames().join('、'),
+				}),
+			});
+		}
+
 		// —— 自定义条目 ——
 		new Setting(containerEl).setName(t('setting.custom')).setHeading();
 		const customSection = this.createSection(containerEl);
@@ -253,13 +280,24 @@ export class TipsSettingTab extends PluginSettingTab {
 		return section.createDiv({ cls: 'setting-item-info' });
 	}
 
+	/**
+	 * 分组标题：名字后面跟上该组可用的模板总数。
+	 * 统计口径与模板面板一致（含插件随包附带的模板），
+	 * 这样收起状态下也能一眼看出哪组有货。
+	 */
+	private groupLabel(group: IdentifierGroup): string {
+		let count = 0;
+		for (const identifier of group.identifiers) {
+			count += this.plugin.getSnippets(identifier).length;
+		}
+		return `${group.label} (${count})`;
+	}
+
 	private renderSnippetGroup(parent: HTMLElement, group: IdentifierGroup): void {
-		// 有内容的组默认展开；空组也展开，好让用户看到提示
-		const hasContent = group.identifiers.some((id) => this.plugin.getOwnSnippets(id).length > 0);
+		// 一律默认收起，设置页进来只看到分组名，点开 summary 才展开内容
 		const details = parent.createEl('details', { cls: 'tips-snippet-group' });
 		if (group.muted) details.addClass('is-muted');
-		details.open = group.identifiers.length === 0 || hasContent;
-		details.createEl('summary', { text: group.label });
+		details.createEl('summary', { text: this.groupLabel(group) });
 
 		if (group.identifiers.length === 0) {
 			// 目前只有「自定义条目」这一组可能为空
@@ -278,7 +316,8 @@ export class TipsSettingTab extends PluginSettingTab {
 	private renderSnippetIdentifier(parent: HTMLElement, identifier: string): void {
 		const t = this.plugin.t;
 
-		// 统一使用标准 Setting 组件，和设置页其它条目保持同一套外观
+		// 统一使用标准 Setting 组件，和设置页其它条目保持同一套外观。
+		// 条数走 setDesc，按组件原生布局落在标识符名称下方。
 		const row = new Setting(parent)
 			.setName(identifier)
 			.setDesc(t('setting.snippets.count', { count: this.plugin.getOwnSnippets(identifier).length }))
@@ -287,19 +326,23 @@ export class TipsSettingTab extends PluginSettingTab {
 					this.addSnippet(identifier);
 				}),
 			);
-		this.snippetRows.set(identifier, row);
 
 		const listEl = parent.createDiv({ cls: 'tips-snippet-entries' });
+		this.renderSnippetEntries(listEl, identifier, this.plugin.getOwnSnippets(identifier));
+
+		this.snippetRows.set(identifier, row);
 		this.snippetLists.set(identifier, listEl);
-		this.renderSnippetEntries(listEl, identifier);
 	}
 
 	/** 只重画某个条目下的模板列表（含条数说明），不触碰设置页其余部分 */
-	private renderSnippetEntries(listEl: HTMLElement, identifier: string): void {
+	private renderSnippetEntries(
+		listEl: HTMLElement,
+		identifier: string,
+		snippets: Snippet[],
+	): void {
 		const t = this.plugin.t;
 		listEl.empty();
 
-		const snippets = this.plugin.getOwnSnippets(identifier);
 		if (snippets.length === 0) {
 			listEl.createDiv({ cls: 'tips-custom-empty', text: t('setting.snippets.empty') });
 			return;
@@ -310,33 +353,30 @@ export class TipsSettingTab extends PluginSettingTab {
 				.setName(snippet.name)
 				.setDesc(snippet.body.split('\n')[0] ?? '')
 				.addButton((button) =>
-					button.setButtonText(t('setting.snippets.edit')).onClick(() => {
-						this.editSnippet(identifier, index);
+				button.setButtonText(t('setting.snippets.edit')).onClick(() => {
+					this.editSnippet(identifier, index);
+				}),
+			).addButton((button) =>
+				button
+					.setButtonText(t('setting.snippets.remove'))
+					.setWarning()
+					.onClick(() => {
+						void this.removeSnippet(identifier, index);
 					}),
-				)
-				.addButton((button) =>
-					button
-						.setButtonText(t('setting.snippets.remove'))
-						.setWarning()
-						.onClick(() => {
-							void this.removeSnippet(identifier, index);
-						}),
-				);
+			);
 		});
 	}
 
-	/** 模板变动后的局部刷新：更新列表本身，以及标识符那一行的条数说明 */
+	/** 模板变动后的局部刷新：更新列表本身，以及条目那一行的条数说明 */
 	private refreshSnippets(identifier: string): void {
+		const snippets = this.plugin.getOwnSnippets(identifier);
+
 		const listEl = this.snippetLists.get(identifier);
-		if (listEl) this.renderSnippetEntries(listEl, identifier);
+		if (listEl) this.renderSnippetEntries(listEl, identifier, snippets);
 
 		const row = this.snippetRows.get(identifier);
 		if (row) {
-			row.setDesc(
-				this.plugin.t('setting.snippets.count', {
-					count: this.plugin.getOwnSnippets(identifier).length,
-				}),
-			);
+			row.setDesc(this.plugin.t('setting.snippets.count', { count: snippets.length }));
 		}
 	}
 

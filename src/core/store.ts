@@ -1,7 +1,7 @@
 import { BUILTIN_LANGUAGES } from '../data/languages';
 import { text, type Lang, type Translate } from '../i18n';
 import type { Candidate, CandidateColumns, TipsSettings } from '../types';
-import type { ScannedProcessor } from './scanner';
+import type { BundledSnippetSet, ScannedProcessor } from './scanner';
 
 /** 代码块标识符的合法性：非空，且不含空白、反引号、波浪号。 */
 export function isValidIdentifier(value: string): boolean {
@@ -12,11 +12,13 @@ export function isValidIdentifier(value: string): boolean {
 export function buildCandidates(
 	settings: TipsSettings,
 	scanned: ScannedProcessor[],
+	bundled: BundledSnippetSet[],
 	lang: Lang,
 	t: Translate,
 ): CandidateColumns {
 	const languages: Candidate[] = [];
 	const plugins: Candidate[] = [];
+	const seenPluginValues = new Set<string>();
 
 	if (settings.includeBuiltinLanguages) {
 		for (const entry of BUILTIN_LANGUAGES) {
@@ -41,6 +43,7 @@ export function buildCandidates(
 	if (settings.scanPlugins) {
 		const disabledSuffix = t('panel.note.disabled');
 		for (const item of scanned) {
+			seenPluginValues.add(item.value);
 			const base = t('panel.note.plugin', { name: item.pluginName });
 			plugins.push({
 				value: item.value,
@@ -50,6 +53,28 @@ export function buildCandidates(
 				pluginName: item.pluginName,
 				pluginEnabled: item.enabled,
 			});
+		}
+	}
+
+	// 插件随包附带的 tips.json：有些插件用变量注册，名字扫不出来，
+	// 但作者在 tips.json 里写了标识符，这里补进候选栏。
+	// 独立受 scanBundledSnippets 开关控制；已被扫描结果覆盖的标识符跳过。
+	if (settings.scanBundledSnippets) {
+		const disabledSuffix = t('panel.note.disabled');
+		for (const set of bundled) {
+			const base = t('panel.note.plugin', { name: set.pluginName });
+			for (const identifier of Object.keys(set.table).sort((a, b) => a.localeCompare(b, 'en'))) {
+				if (seenPluginValues.has(identifier)) continue;
+				seenPluginValues.add(identifier);
+				plugins.push({
+					value: identifier,
+					kind: 'plugin',
+					note: set.enabled ? base : `${base} (${disabledSuffix})`,
+					pluginId: set.pluginId,
+					pluginName: set.pluginName,
+					pluginEnabled: set.enabled,
+				});
+			}
 		}
 	}
 

@@ -580,6 +580,40 @@ const STRINGS = {
 		ar: 'بالبكسل، من {min} إلى {max}.',
 	},
 
+	'setting.bundled': {
+		zh: '已从 {plugins} 个插件读取到附带模板，共 {count} 条。',
+		en: 'Read {count} bundled template(s) from {plugins} plugin(s).',
+		ru: 'Прочитано {count} шаблон(ов) из {plugins} плагин(ов).',
+		fr: '{count} modèle(s) lus depuis {plugins} extension(s).',
+		es: '{count} plantilla(s) leídas de {plugins} complemento(s).',
+		ar: 'تمت قراءة {count} قالبًا من {plugins} إضافة.',
+	},
+	'setting.bundled.desc': {
+		zh: '包括：{list}。可在下方的「内容模板」中查看。',
+		en: 'Including: {list}. Find them under “Content templates” below.',
+		ru: 'В том числе: {list}. Ищите их ниже в «Шаблоны содержимого».',
+		fr: 'Notamment : {list}. À voir ci-dessous dans « Modèles de contenu ».',
+		es: 'Incluye: {list}. Están abajo en «Plantillas de contenido».',
+		ar: 'ومنها: {list}. تجدها أدناه في «قوالب المحتوى».',
+	},
+
+	'setting.unparsed': {
+		zh: '⚠️ {count} 个插件使用了变量式注册，代码块名无法自动识别',
+		en: '⚠️ {count} plugin(s) register code blocks dynamically; their names cannot be detected',
+		ru: '⚠️ {count} плагин(ов) регистрируют блоки динамически; их имена не определить',
+		fr: '⚠️ {count} extension(s) enregistrent les blocs dynamiquement ; leurs noms sont indétectables',
+		es: '⚠️ {count} complemento(s) registran bloques dinámicamente; sus nombres no se detectan',
+		ar: '⚠️ {count} إضافة تسجّل الكتل ديناميكيًا؛ لا يمكن اكتشاف أسمائها',
+	},
+	'setting.unparsed.desc': {
+		zh: '包括：{list}。可在这几个插件的源码里搜索 registerMarkdownCodeBlockProcessor 找到注册的名字，再加到上方的「自定义代码块条目」中。',
+		en: 'Including: {list}. Search for registerMarkdownCodeBlockProcessor in their source to find the registered names, then add them under “Custom code block entries” above.',
+		ru: 'В том числе: {list}. Найдите registerMarkdownCodeBlockProcessor в их исходниках и добавьте имена в «Свои записи блоков кода» выше.',
+		fr: 'Notamment : {list}. Cherchez registerMarkdownCodeBlockProcessor dans leurs sources, puis ajoutez les noms ci-dessus.',
+		es: 'Incluye: {list}. Busca registerMarkdownCodeBlockProcessor en su código y añade los nombres arriba.',
+		ar: 'ومنها: {list}. ابحث عن registerMarkdownCodeBlockProcessor في الشيفرة ثم أضف الأسماء في الأعلى.',
+	},
+
 	'setting.rescan': {
 		zh: '重新扫描', en: 'Rescan now',
 		ru: 'Сканировать снова', fr: "Relancer l'analyse",
@@ -617,6 +651,22 @@ const STRINGS = {
 		fr: 'Analyse terminée : {count} entrées depuis {plugins} extensions.',
 		es: 'Análisis completado: {count} entradas de {plugins} complementos.',
 		ar: 'انتهى الفحص: {count} إدخالًا من {plugins} إضافة.',
+	},
+	'notice.scanDoneBundled': {
+		zh: '另从 {plugins} 个插件读取到 {templates} 条附带模板。',
+		en: 'Also read {templates} bundled template(s) from {plugins} plugin(s).',
+		ru: 'Также прочитано {templates} шаблон(ов) из {plugins} плагин(ов).',
+		fr: 'Également {templates} modèle(s) lus depuis {plugins} extension(s).',
+		es: 'También {templates} plantilla(s) de {plugins} complemento(s).',
+		ar: 'وتمت قراءة {templates} قالبًا من {plugins} إضافة.',
+	},
+	'notice.bundledMerged': {
+		zh: '其中 {count} 条为新增或更新，已写入你的模板列表。',
+		en: '{count} of them were new or updated and written to your template list.',
+		ru: '{count} из них добавлены или обновлены в вашем списке.',
+		fr: '{count} d’entre eux ont été ajoutés ou mis à jour.',
+		es: '{count} se añadieron o actualizaron en tu lista.',
+		ar: 'وأُضيف أو حُدّث {count} منها في قائمتك.',
 	},
 	'notice.scanFailed': {
 		zh: '扫描失败：{message}', en: 'Scan failed: {message}',

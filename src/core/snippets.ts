@@ -112,6 +112,52 @@ export function filterSnippets(items: Snippet[], query: string): Snippet[] {
 	return ranked.map((entry) => entry.item);
 }
 
+/**
+ * 把插件附带的模板并入现有模板表。
+ *
+ * 规则（插件自带优先）：
+ * - 同标识符下**同名**的条目 → 用附带的覆盖（作者改了内容就跟着更新）；
+ * - 附带有、本地没有的 → 追加；
+ * - 本地有、附带没有的 → 原样保留。作者迭代时删掉的旧条目因此不会丢，
+ *   它会继续留在本地；等插件卸载后自会落到「其他条目」分组。
+ *
+ * 不修改入参，返回新表与是否发生过变化。
+ */
+export function mergeBundledSnippets(
+	current: SnippetTable,
+	bundled: ReadonlyArray<SnippetTable>,
+): { table: SnippetTable; changed: boolean; added: number } {
+	const table = cloneSnippetTable(current);
+	let changed = false;
+	let added = 0;
+
+	for (const source of bundled) {
+		for (const [identifier, list] of Object.entries(source)) {
+			const merged: Snippet[] = [...(table[identifier] ?? [])];
+
+			for (const incoming of list) {
+				const index = merged.findIndex((item) => item.name === incoming.name);
+				if (index < 0) {
+					merged.push({ ...incoming });
+					changed = true;
+					added++;
+					continue;
+				}
+				const existing = merged[index];
+				if (existing && existing.body !== incoming.body) {
+					merged[index] = { ...incoming };
+					changed = true;
+					added++;
+				}
+			}
+
+			if (merged.length > 0) table[identifier] = merged;
+		}
+	}
+
+	return { table, changed, added };
+}
+
 // —— 导出 / 提取 ——
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
