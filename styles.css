@@ -68,10 +68,13 @@
 	z-index: var(--layer-menu, 1000);
 	display: flex;
 	flex-direction: column;
-	/* 宽度由设置项通过内联 CSS 变量下发，也可用 CSS 片段覆盖此变量 */
+	/* 下列取值全部由 placePicker() 通过 CSS 变量下发，也可用 CSS 片段自行覆盖 */
+	top: var(--tips-picker-top, auto);
+	bottom: var(--tips-picker-bottom, auto);
+	left: var(--tips-picker-left, 0);
 	width: var(--tips-picker-width, 380px);
 	max-width: calc(100vw - 16px);
-	max-height: 340px;
+	max-height: var(--tips-picker-max-height, 340px);
 	overflow: hidden;
 	border: 1px solid var(--background-modifier-border);
 	border-radius: var(--radius-m);
@@ -266,11 +269,10 @@
 
 /* ---------- 设置页：分组标题 ---------- */
 
-/* 用 .tips-settings 提高优先级，确保能压过 Obsidian 默认的 h3 留白 */
-.tips-settings .tips-settings-heading {
+/* 分组标题改用官方的 Setting.setHeading() 组件，这里只在本设置页内收紧留白 */
+.tips-settings .setting-item-heading {
 	margin-block-start: 18px;
 	margin-block-end: 6px;
-	margin-inline: 0;
 	padding: 0;
 }
 
