@@ -214,6 +214,18 @@ tips/
 
 ## Changelog
 
+### 2.1.1
+
+- Panel position is delivered through CSS variables instead of inline styles, as required by the review rules.
+
+### 2.1.0
+
+- Addressed the community plugin review: DOM elements are now created with Obsidian's helpers (`createDiv` / `createSpan` / `createEl`), and section titles use `Setting.setHeading()`.
+- Language detection uses Obsidian's `getLanguage()` API instead of reading `localStorage`.
+- Removed the deprecated `setDynamicTooltip()` call.
+- `minAppVersion` raised to **1.8.7**, required by `getLanguage()`.
+- The README is now English by default; the Chinese version lives at `README_ZH.md`.
+
 ### 2.0.0
 
 **Content templates (new)**

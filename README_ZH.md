@@ -236,6 +236,18 @@ tips/
 
 ## 更新日志
 
+### 2.1.1
+
+- 面板定位改为通过 CSS 变量下发，不再直接写内联样式（审核规则要求）。
+
+### 2.1.0
+
+- 修复社区插件审核提出的问题：DOM 元素改用 Obsidian 的 helper（`createDiv` / `createSpan` / `createEl`）创建，分组标题改用 `Setting.setHeading()`。
+- 语言检测改用 Obsidian 的 `getLanguage()`，不再读取 `localStorage`。
+- 移除已弃用的 `setDynamicTooltip()` 调用。
+- `minAppVersion` 提升到 **1.8.7**，这是 `getLanguage()` 的要求。
+- README 改为英文为主，中文版移到 `README_ZH.md`。
+
 ### 2.0.0
 
 **内容模板（新功能）**
