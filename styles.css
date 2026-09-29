@@ -353,6 +353,11 @@
 	cursor: pointer;
 }
 
+/* 分组标题里的「N 个 / N 条」：再弱一档，别和分组名抢注意力 */
+.tips-snippet-count {
+	color: var(--text-faint);
+}
+
 /* 条目列表相对标识符那一行缩进一档，形成层级感 */
 .tips-snippet-entries {
 	margin-left: 16px;

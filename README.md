@@ -97,7 +97,7 @@ The three groups are treated differently on import:
 | `builtin` | Imported when the processor exists, otherwise skipped entirely with a notice |
 | `custom` | Controlled by the "import non-plugin templates" switch; missing entries are created automatically with a blank note |
 
-- You can copy to the clipboard or export a `tips.json` file; importing accepts pasted text or a chosen file
+- You can export a `tips.json` file, or select the JSON shown in the export dialog and copy it; importing accepts pasted text or a chosen file
 - Import is **additive**: identical entries are skipped, and entries you don't currently have are skipped with a notice
 
 #### For plugin authors: ship templates with your plugin
@@ -217,6 +217,27 @@ tips/
 
 ## Changelog
 
+### 3.1.0
+
+**Settings**
+
+- The scan options now live in their own **Scanning** section with a heading, and the two notices (dynamic registration, bundled templates) moved inside it.
+- A new note explains the order in which scanning resolves names: literal registration → unique string constant → `.block-language-*` class → `tips.json` identifier.
+- The scan summary now counts bundled templates too, and reports plugins rather than names: “N code block names from N plugins (N of them provide tips.json templates)”.
+- Template group headings now read “N names / N templates”, with the counts rendered in a weaker colour so they don't compete with the group name.
+
+**Fixed**
+
+- Four `createEl('div')` calls in the template dialogs were replaced with `createDiv()`, as required by Obsidian's `prefer-create-el` rule.
+
+**Changed**
+
+- Removed the “copy to clipboard” button from the export dialog. The JSON can be selected and copied right there, and the plugin no longer touches the clipboard at all — which also removes the clipboard disclosure from its listing. (This supersedes the clipboard feature noted under 2.0.0.)
+
+**Docs**
+
+- Added `CONTRIBUTING.md`, linked from both READMEs.
+
 ### 3.0.0
 
 **Fixed: templates bundled by plugins now actually reach the picker**
@@ -284,6 +305,10 @@ A plugin's `tips.json` was being read, counted and shown in settings, but the id
 - Typing ```` ``` ```` opens the two-column picker (languages / built-in, plugins / custom)
 - Scans installed plugins for registered code block entries and labels their source
 - Custom code block entries (name + note)
+
+## Contributing
+
+Bug reports and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). It covers what to include in a bug report, how to test changes to the logic modules without a test framework, and the review rules the code has to follow.
 
 ## Author
 
