@@ -123,12 +123,49 @@ export default class TipsPlugin extends Plugin {
 		};
 	}
 
-	getScannedCount(): number {
-		return this.scanned.length;
-	}
+	/**
+	 * 扫描统计，用于设置页的说明文字。
+	 *
+	 * 口径是「候选栏里由插件提供的名称」，也就是扫描结果与附带模板的**并集**：
+	 * - `names`：去重后的代码块名称总数（扫描结果 ∪ 附带模板的标识符）；
+	 * - `plugins`：提供这些名称的插件数。只靠 tips.json 提供名字的插件也算——
+	 *   例如 LMath 用变量式注册，main.js 里一个名字都扫不出来，但它的名字确实
+	 *   出现在候选栏里，所以应当计入；
+	 * - `bundledPlugins`：**带有 tips.json 的插件数**，也就是「有几个插件用了
+	 *   tips.json」。
+	 *
+	 * 注意别把同族的三个量搞混（以「LMath 只有 tips.json、Excalidraw 只有扫描结果、
+	 * Foo 两者都有且部分重叠」为例）：
+	 *
+	 * | 量                  | 含义                                   | 例值 |
+	 * | ------------------- | -------------------------------------- | ---- |
+	 * | bundledPlugins      | 带了 tips.json 文件的插件数（文件层面）  | 2    |
+	 * | bundledOnlyNames    | 扫不到、只能靠 tips.json 的名称数        | 7    |
+	 * | bundledOnlyPlugins  | 一个名字都扫不到、完全靠 tips.json 的插件数 | 1  |
+	 *
+	 * 本方法返回的是第一个。第二个是名称粒度，与插件数不是一个维度；
+	 * 第三个才真正体现 tips.json 的「补救价值」（没有它就彻底用不了的插件有几个），
+	 * 目前设置页没有展示，需要时在这里补算即可。
+	 */
+	getScanStats(): { names: number; plugins: number; bundledPlugins: number } {
+		const names = new Set<string>();
+		const providers = new Set<string>();
 
-	getScannedPluginCount(): number {
-		return new Set(this.scanned.map((item) => item.pluginId)).size;
+		for (const item of this.scanned) {
+			names.add(item.value);
+			providers.add(item.pluginId);
+		}
+
+		for (const set of this.bundled) {
+			providers.add(set.pluginId);
+			for (const identifier of Object.keys(set.table)) names.add(identifier);
+		}
+
+		return {
+			names: names.size,
+			plugins: providers.size,
+			bundledPlugins: this.bundled.length,
+		};
 	}
 
 	invalidateCandidates(): void {
@@ -348,10 +385,11 @@ export default class TipsPlugin extends Plugin {
 
 			this.invalidateCandidates();
 			if (!silent) {
+				const stats = this.getScanStats();
 				new Notice(
 					this.t('notice.scanDone', {
-						plugins: this.getScannedPluginCount(),
-						count: this.scanned.length,
+						plugins: stats.plugins,
+						count: stats.names,
 					}),
 				);
 				const bundled = this.getBundledSummary();

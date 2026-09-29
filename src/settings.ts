@@ -145,8 +145,14 @@ export class TipsSettingTab extends PluginSettingTab {
 				}),
 			);
 
-		// —— 扫描插件 ——
-		new Setting(containerEl)
+		// —— 扫描 ——
+		new Setting(containerEl).setName(t('setting.scan')).setHeading();
+		const scanSection = this.createSection(containerEl);
+		// 先讲清识别线索的优先级，用户看统计数字时才知道那些数是怎么来的
+		scanSection.createDiv({ cls: 'setting-item-description', text: t('setting.scan.desc') });
+
+		// 扫描插件注册的代码块名称
+		new Setting(scanSection)
 			.setName(t('setting.scanPlugins'))
 			.setDesc(t('setting.scanPlugins.desc'))
 			.addToggle((toggle) =>
@@ -159,8 +165,8 @@ export class TipsSettingTab extends PluginSettingTab {
 				}),
 			);
 
-		// —— 读取插件随包附带的模板 ——
-		new Setting(containerEl)
+		// 读取插件随包附带的模板
+		new Setting(scanSection)
 			.setName(t('setting.scanBundled'))
 			.setDesc(t('setting.scanBundled.desc'))
 			.addToggle((toggle) =>
@@ -172,12 +178,15 @@ export class TipsSettingTab extends PluginSettingTab {
 				}),
 			);
 
-		new Setting(containerEl)
+		// 手动重扫 + 统计结果
+		const stats = this.plugin.getScanStats();
+		new Setting(scanSection)
 			.setName(t('setting.rescan'))
 			.setDesc(
 				t('setting.rescan.desc', {
-					count: this.plugin.getScannedCount(),
-					plugins: this.plugin.getScannedPluginCount(),
+					count: stats.names,
+					plugins: stats.plugins,
+					bundled: stats.bundledPlugins,
 				}),
 			)
 			.addButton((button) =>
@@ -191,7 +200,7 @@ export class TipsSettingTab extends PluginSettingTab {
 		const unparsed = this.plugin.getUnparsedPlugins();
 		if (unparsed.length > 0) {
 			const names = unparsed.map((item) => item.pluginName).join('、');
-			const hint = containerEl.createDiv({ cls: 'tips-warning' });
+			const hint = scanSection.createDiv({ cls: 'tips-warning' });
 			hint.createDiv({ text: t('setting.unparsed', { count: unparsed.length }) });
 			hint.createDiv({ text: t('setting.unparsed.desc', { list: names }) });
 		}
@@ -200,7 +209,7 @@ export class TipsSettingTab extends PluginSettingTab {
 		// 它陈述的是「读到了什么」，不是需要用户去处理的问题。
 		const bundled = this.plugin.getBundledSummary();
 		if (bundled.plugins > 0) {
-			const hint = containerEl.createDiv({ cls: 'tips-warning is-info' });
+			const hint = scanSection.createDiv({ cls: 'tips-warning is-info' });
 			hint.createDiv({
 				text: t('setting.bundled', {
 					plugins: bundled.plugins,
@@ -281,23 +290,33 @@ export class TipsSettingTab extends PluginSettingTab {
 	}
 
 	/**
-	 * 分组标题：名字后面跟上该组可用的模板总数。
-	 * 统计口径与模板面板一致（含插件随包附带的模板），
-	 * 这样收起状态下也能一眼看出哪组有货。
+	 * 分组标题里的数量部分：「名称数 / 模板条数」。
+	 *
+	 * - 名称数 = 该组下的代码块标识符个数；
+	 * - 条数 = 这些标识符下的模板总条数，口径与模板面板一致（含插件随包附带的模板）。
+	 *
+	 * 单独返回而不是拼进标题，是为了在 summary 里用一个更弱的 span 渲染它，
+	 * 免得数量和分组名同色、抢注意力。
 	 */
-	private groupLabel(group: IdentifierGroup): string {
-		let count = 0;
+	private groupCount(group: IdentifierGroup): string {
+		let templates = 0;
 		for (const identifier of group.identifiers) {
-			count += this.plugin.getSnippets(identifier).length;
+			templates += this.plugin.getSnippets(identifier).length;
 		}
-		return `${group.label} (${count})`;
+		return this.plugin.t('setting.snippets.groupCount', {
+			names: group.identifiers.length,
+			templates,
+		});
 	}
 
 	private renderSnippetGroup(parent: HTMLElement, group: IdentifierGroup): void {
 		// 一律默认收起，设置页进来只看到分组名，点开 summary 才展开内容
 		const details = parent.createEl('details', { cls: 'tips-snippet-group' });
 		if (group.muted) details.addClass('is-muted');
-		details.createEl('summary', { text: this.groupLabel(group) });
+		const summary = details.createEl('summary');
+		summary.appendText(group.label);
+		// 数量弱化显示：它只是补充信息，不该和分组名同色抢注意力
+		summary.createSpan({ cls: 'tips-snippet-count', text: this.groupCount(group) });
 
 		if (group.identifiers.length === 0) {
 			// 目前只有「自定义条目」这一组可能为空

@@ -170,6 +170,21 @@ const STRINGS = {
 		ar: 'البحث تلقائيًا عن tips.json في كل إضافة وإضافة قوالبه. للقراءة فقط؛ إن لم يوجد الملف فلا يتغير شيء.',
 	},
 
+	'setting.scan': {
+		zh: '扫描', en: 'Scanning',
+		ru: 'Сканирование', fr: 'Analyse',
+		es: 'Escaneo', ar: 'الفحص',
+	},
+	// 扫描识别名称时的线索优先级，按先后顺序
+	'setting.scan.desc': {
+		zh: '按以下线索依次识别代码块名称：① main.js 里直接写出的注册名 → ② 能唯一还原的字符串常量 → ③ styles.css 里的 .block-language-* 类名 → ④ tips.json 里声明的标识符。同一名称只收录一次，先命中的线索优先。',
+		en: 'Names are resolved through four clues in order: ① the literal name written into main.js → ② a string constant that resolves to exactly one value → ③ .block-language-* classes in styles.css → ④ identifiers declared in tips.json. Each name is recorded once; the earlier clue wins.',
+		ru: 'Имена определяются по четырём признакам по порядку: ① имя, записанное в main.js напрямую → ② строковая константа с единственным значением → ③ классы .block-language-* в styles.css → ④ идентификаторы из tips.json. Каждое имя учитывается один раз, побеждает первый признак.',
+		fr: "Les noms sont résolus par quatre indices, dans l'ordre : ① le nom écrit en clair dans main.js → ② une constante de chaîne à valeur unique → ③ les classes .block-language-* de styles.css → ④ les identifiants déclarés dans tips.json. Chaque nom n'est retenu qu'une fois ; le premier indice l'emporte.",
+		es: 'Los nombres se resuelven con cuatro pistas, por orden: ① el nombre escrito directamente en main.js → ② una constante de cadena con un único valor → ③ las clases .block-language-* de styles.css → ④ los identificadores declarados en tips.json. Cada nombre se registra una sola vez; gana la primera pista.',
+		ar: 'تُحدَّد الأسماء عبر أربع قرائن بالترتيب: ① الاسم المكتوب مباشرة في main.js → ② ثابت نصّي بقيمة واحدة → ③ أصناف .block-language-* في styles.css → ④ المعرّفات المعلنة في tips.json. يُسجَّل كل اسم مرة واحدة، وتفوز القرينة الأولى.',
+	},
+
 	'setting.scanPlugins': {
 		zh: '扫描已安装插件的代码块名称', en: 'Scan installed plugins for code block names',
 		ru: 'Искать названия блоков в установленных плагинах', fr: 'Rechercher les noms de blocs dans les extensions',
@@ -349,6 +364,16 @@ const STRINGS = {
 		ru: 'Прочие записи (временно отсутствуют)', fr: 'Autres entrées (temporairement absentes)',
 		es: 'Otras entradas (faltan temporalmente)', ar: 'إدخالات أخرى (مفقودة مؤقتًا)',
 	},
+	// 分组标题里的数量部分（{names} 名称数 / {templates} 模板条数）。
+	// 单独成一条是为了在 summary 里用更弱的样式渲染，不与分组名同色。
+	'setting.snippets.groupCount': {
+		zh: '（{names} 个 / {templates} 条）',
+		en: ' ({names} names / {templates} templates)',
+		ru: ' ({names} назв. / {templates} шабл.)',
+		fr: ' ({names} noms / {templates} modèles)',
+		es: ' ({names} nombres / {templates} plantillas)',
+		ar: ' ({names} اسم / {templates} قالب)',
+	},
 
 	'modal.snippet.new': {
 		zh: '新建内容模板', en: 'New template',
@@ -420,22 +445,12 @@ const STRINGS = {
 		es: 'Exportar', ar: 'تصدير',
 	},
 	'modal.transfer.export.desc': {
-		zh: '复制下面的 JSON 分享给别人。',
-		en: 'Copy the JSON below to share your templates.',
-		ru: 'Скопируйте JSON ниже, чтобы поделиться шаблонами.',
-		fr: 'Copiez le JSON ci-dessous pour partager vos modèles.',
-		es: 'Copia el JSON de abajo para compartir tus plantillas.',
-		ar: 'انسخ JSON أدناه لمشاركة قوالبك.',
-	},
-	'modal.transfer.copy': {
-		zh: '复制到剪贴板', en: 'Copy to clipboard',
-		ru: 'Копировать в буфер', fr: 'Copier dans le presse-papiers',
-		es: 'Copiar al portapapeles', ar: 'نسخ إلى الحافظة',
-	},
-	'modal.transfer.copied': {
-		zh: '已复制到剪贴板。', en: 'Copied to clipboard.',
-		ru: 'Скопировано в буфер.', fr: 'Copié dans le presse-papiers.',
-		es: 'Copiado al portapapeles.', ar: 'تم النسخ إلى الحافظة.',
+		zh: '下面是导出的 JSON，选中复制即可分享给别人。',
+		en: 'The JSON below can be selected and copied to share your templates.',
+		ru: 'JSON ниже можно выделить и скопировать, чтобы поделиться шаблонами.',
+		fr: 'Le JSON ci-dessous peut être sélectionné et copié pour partager vos modèles.',
+		es: 'El JSON de abajo se puede seleccionar y copiar para compartir tus plantillas.',
+		ar: 'يمكن تحديد JSON أدناه ونسخه لمشاركة قوالبك.',
 	},
 	'modal.transfer.exportFile': {
 		zh: '导出 JSON 文件', en: 'Export JSON file',
@@ -606,12 +621,12 @@ const STRINGS = {
 		ar: '⚠️ {count} إضافة تسجّل الكتل ديناميكيًا؛ لا يمكن اكتشاف أسمائها',
 	},
 	'setting.unparsed.desc': {
-		zh: '包括：{list}。可在这几个插件的源码里搜索 registerMarkdownCodeBlockProcessor 找到注册的名字，再加到上方的「自定义代码块条目」中。',
-		en: 'Including: {list}. Search for registerMarkdownCodeBlockProcessor in their source to find the registered names, then add them under “Custom code block entries” above.',
-		ru: 'В том числе: {list}. Найдите registerMarkdownCodeBlockProcessor в их исходниках и добавьте имена в «Свои записи блоков кода» выше.',
-		fr: 'Notamment : {list}. Cherchez registerMarkdownCodeBlockProcessor dans leurs sources, puis ajoutez les noms ci-dessus.',
-		es: 'Incluye: {list}. Busca registerMarkdownCodeBlockProcessor en su código y añade los nombres arriba.',
-		ar: 'ومنها: {list}. ابحث عن registerMarkdownCodeBlockProcessor في الشيفرة ثم أضف الأسماء في الأعلى.',
+		zh: '包括：{list}。可在这几个插件的源码里搜索 registerMarkdownCodeBlockProcessor 找到注册的名字，再加到下方的「自定义代码块条目」中。',
+		en: 'Including: {list}. Search for registerMarkdownCodeBlockProcessor in their source to find the registered names, then add them under “Custom code block entries” below.',
+		ru: 'В том числе: {list}. Найдите registerMarkdownCodeBlockProcessor в их исходниках и добавьте имена в «Свои записи блоков кода» ниже.',
+		fr: 'Notamment : {list}. Cherchez registerMarkdownCodeBlockProcessor dans leurs sources, puis ajoutez les noms ci-dessous.',
+		es: 'Incluye: {list}. Busca registerMarkdownCodeBlockProcessor en su código y añade los nombres abajo.',
+		ar: 'ومنها: {list}. ابحث عن registerMarkdownCodeBlockProcessor في الشيفرة ثم أضف الأسماء في الأسفل.',
 	},
 
 	'setting.rescan': {
@@ -620,12 +635,12 @@ const STRINGS = {
 		es: 'Volver a escanear', ar: 'إعادة الفحص',
 	},
 	'setting.rescan.desc': {
-		zh: '当前已收录 {count} 个代码块名称，来自 {plugins} 个插件。',
-		en: 'Currently {count} code block names from {plugins} plugins.',
-		ru: 'Сейчас {count} названий блоков из {plugins} плагинов.',
-		fr: 'Actuellement {count} noms de blocs depuis {plugins} extensions.',
-		es: 'Actualmente {count} nombres de bloques de {plugins} complementos.',
-		ar: 'حاليًا {count} اسم كتلة من {plugins} إضافة.',
+		zh: '当前扫描共收录 {count} 个代码块名称，来自 {plugins} 个插件（其中 {bundled} 个插件来自 tips.json 模板）。',
+		en: 'Scanning has collected {count} code block names from {plugins} plugins ({bundled} of them provide tips.json templates).',
+		ru: 'Сканирование собрало {count} названий блоков из {plugins} плагинов ({bundled} из них поставляют шаблоны tips.json).',
+		fr: "L'analyse a collecté {count} noms de blocs depuis {plugins} extensions (dont {bundled} fournissent des modèles tips.json).",
+		es: 'El escaneo ha recopilado {count} nombres de bloques de {plugins} complementos ({bundled} de ellos aportan plantillas tips.json).',
+		ar: 'جمع الفحص {count} اسم كتلة من {plugins} إضافة ({bundled} منها توفّر قوالب tips.json).',
 	},
 
 	'command.open': {

@@ -56,8 +56,8 @@ export class SnippetEditModal extends Modal {
 			window.setTimeout(() => text.inputEl.focus(), 0);
 		});
 
-		contentEl.createEl('div', { cls: 'setting-item-name', text: this.t('modal.snippet.body') });
-		contentEl.createEl('div', {
+		contentEl.createDiv({ cls: 'setting-item-name', text: this.t('modal.snippet.body') });
+		contentEl.createDiv({
 			cls: 'setting-item-description',
 			text: this.t('modal.snippet.body.desc'),
 		});
@@ -151,7 +151,7 @@ export class SnippetTransferModal extends Modal {
 
 		// —— 导出 ——
 		new Setting(contentEl).setName(this.t('modal.transfer.export')).setHeading();
-		contentEl.createEl('div', {
+		contentEl.createDiv({
 			cls: 'setting-item-description',
 			text: this.t('modal.transfer.export.desc'),
 		});
@@ -169,15 +169,10 @@ export class SnippetTransferModal extends Modal {
 			.addEventListener('click', () => {
 				this.download(exportArea.value);
 			});
-		exportButtons
-			.createEl('button', { cls: 'mod-cta', text: this.t('modal.transfer.copy') })
-			.addEventListener('click', () => {
-				void this.copy(exportArea);
-			});
 
 		// —— 导入 ——
 		new Setting(contentEl).setName(this.t('modal.transfer.import')).setHeading();
-		contentEl.createEl('div', {
+		contentEl.createDiv({
 			cls: 'setting-item-description',
 			text: this.t('modal.transfer.import.desc'),
 		});
@@ -249,17 +244,6 @@ export class SnippetTransferModal extends Modal {
 		} finally {
 			// 清空以便重复选择同一个文件
 			input.value = '';
-		}
-	}
-
-	private async copy(textarea: HTMLTextAreaElement): Promise<void> {
-		try {
-			await navigator.clipboard.writeText(textarea.value);
-			new Notice(this.t('modal.transfer.copied'));
-		} catch {
-			// 剪贴板不可用时退化为全选，让用户手动复制
-			textarea.focus();
-			textarea.select();
 		}
 	}
 
